@@ -1,0 +1,176 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate test secrets
+        # The suite exercises the encrypted-at-rest path, so it needs real
+        # keys. These are generated per run and never leave the runner.
+        run: |
+          echo "SECRET_KEY=$(python -c 'import secrets;print(secrets.token_hex(32))')" >> $GITHUB_ENV
+          echo "FERNET_KEYS=$(python -c 'from cryptography.fernet import Fernet;print(Fernet.generate_key().decode())')" >> $GITHUB_ENV
+          echo "BLIND_INDEX_KEY=$(python -c 'import os;print(os.urandom(32).hex())')" >> $GITHUB_ENV
+
+      - name: Run tests
+        env:
+          DATABASE_URL: "sqlite://"
+          REQUIRE_ENCRYPTION: "false"
+          BUSINESS_TIMEZONE: "Asia/Manila"
+        run: PYTHONPATH=. pytest -q --junitxml=junit.xml
+
+      - name: Mandatory specification scenarios
+        env:
+          DATABASE_URL: "sqlite://"
+          REQUIRE_ENCRYPTION: "false"
+        run: PYTHONPATH=. pytest -m mandatory -q
+
+      - name: All 17 shift templates
+        env:
+          DATABASE_URL: "sqlite://"
+          REQUIRE_ENCRYPTION: "false"
+        run: PYTHONPATH=. pytest -m shift_matrix -q
+
+      - name: Security controls
+        env:
+          DATABASE_URL: "sqlite://"
+          REQUIRE_ENCRYPTION: "false"
+        run: PYTHONPATH=. pytest -m security -q
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-${{ matrix.python-version }}
+          path: backend/junit.xml
+          if-no-files-found: ignore
+
+  migrations:
+    name: Migrations apply cleanly with no drift
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: pip install -r requirements.txt
+
+      - name: Generate secrets
+        run: |
+          echo "SECRET_KEY=$(python -c 'import secrets;print(secrets.token_hex(32))')" >> $GITHUB_ENV
+          echo "FERNET_KEYS=$(python -c 'from cryptography.fernet import Fernet;print(Fernet.generate_key().decode())')" >> $GITHUB_ENV
+          echo "BLIND_INDEX_KEY=$(python -c 'import os;print(os.urandom(32).hex())')" >> $GITHUB_ENV
+
+      - name: Upgrade, then downgrade, then upgrade again
+        env:
+          DATABASE_URL: "sqlite:///./ci.db"
+        run: |
+          alembic upgrade head
+          alembic downgrade base
+          alembic upgrade head
+
+      - name: Fail if the models have drifted from the migrations
+        env:
+          DATABASE_URL: "sqlite:///./ci.db"
+        run: |
+          alembic revision --autogenerate -m "drift check" -z 2>/dev/null || \
+          alembic revision --autogenerate -m "drift check"
+          # A generated migration whose upgrade() is not just `pass` means the
+          # models and the migration chain disagree.
+          FILE=$(ls -t alembic/versions/*drift_check.py | head -1)
+          if grep -qE '^\s{4}(op\.|sa\.)' "$FILE"; then
+            echo "::error::Models have drifted from the migrations. Run:"
+            echo "::error::  alembic revision --autogenerate -m 'describe the change'"
+            echo "--- generated migration ---"
+            cat "$FILE"
+            exit 1
+          fi
+          echo "No drift: the migration chain matches the models."
+          rm -f "$FILE"
+
+  bootstrap:
+    name: Bootstrap and demo seed run end to end
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: pip install -r requirements.txt
+
+      - name: Generate secrets
+        run: |
+          echo "SECRET_KEY=$(python -c 'import secrets;print(secrets.token_hex(32))')" >> $GITHUB_ENV
+          echo "FERNET_KEYS=$(python -c 'from cryptography.fernet import Fernet;print(Fernet.generate_key().decode())')" >> $GITHUB_ENV
+          echo "BLIND_INDEX_KEY=$(python -c 'import os;print(os.urandom(32).hex())')" >> $GITHUB_ENV
+
+      - name: Full bootstrap, seed, and health check
+        env:
+          DATABASE_URL: "sqlite:///./ci.db"
+        run: |
+          alembic upgrade head
+          python -m app.cli bootstrap --password 'CiTestPassword123!'
+          python -m app.cli seed-demo
+          python -m app.cli status
+          python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 &
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:8000/api/health && break
+            sleep 1
+          done
+          echo
+          curl -sf http://127.0.0.1:8000/api/openapi.json | python -c "
+          import sys, json
+          schema = json.load(sys.stdin)
+          ops = sum(
+              1 for p in schema['paths'].values()
+              for m in p if m in ('get','post','put','patch','delete')
+          )
+          print(f'OpenAPI schema valid: {len(schema[\"paths\"])} paths, {ops} operations')
+          assert ops > 80, 'unexpectedly few endpoints'
+          "
+          python -m app.cli purge-demo

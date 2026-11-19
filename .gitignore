@@ -1,0 +1,97 @@
+# --- Secrets: never commit these -------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+fernet.keys
+
+# --- Databases --------------------------------------------------------------
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+backups/
+*.dump
+*.sql.gz
+
+# --- Python -----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- Virtual environments ---------------------------------------------------
+.venv/
+venv/
+ENV/
+env/
+.python-version
+
+# --- Testing and coverage ---------------------------------------------------
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+.hypothesis/
+.tox/
+.nox/
+
+# --- Type checkers and linters ---------------------------------------------
+.mypy_cache/
+.dmypy.json
+.ruff_cache/
+.pyre/
+
+# --- Uploads (intern photos, supporting documents) --------------------------
+uploads/
+!uploads/.gitkeep
+media/
+
+# --- Generated reports ------------------------------------------------------
+exports/
+*.xlsx
+!docs/**/*.xlsx
+*.pptx
+
+# --- Logs -------------------------------------------------------------------
+*.log
+logs/
+
+# --- Editors and OS ---------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Node (for the frontend, when it is added) ------------------------------
+node_modules/
+.npm
+.pnpm-store/
+frontend/dist/
+frontend/.vite/

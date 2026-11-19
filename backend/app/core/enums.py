@@ -1,0 +1,169 @@
+"""Domain enumerations.
+
+Stored as strings so the database stays readable and migrations stay simple
+across SQLite and PostgreSQL.
+"""
+from __future__ import annotations
+
+from enum import StrEnum
+
+
+class RoleName(StrEnum):
+    SYSTEM_ADMINISTRATOR = "SYSTEM_ADMINISTRATOR"
+    IT_MANAGER = "IT_MANAGER"
+    IT_SUPERVISOR = "IT_SUPERVISOR"
+    IT_MENTOR = "IT_MENTOR"
+    INTERN = "INTERN"
+
+
+class InternStatus(StrEnum):
+    PENDING = "PENDING"
+    ACTIVE = "ACTIVE"
+    ON_LEAVE = "ON_LEAVE"
+    COMPLETED = "COMPLETED"
+    WITHDRAWN = "WITHDRAWN"
+    INACTIVE = "INACTIVE"
+
+
+class AttendanceStatus(StrEnum):
+    PRESENT = "PRESENT"
+    ABSENT = "ABSENT"
+    LATE = "LATE"
+    HALF_DAY = "HALF_DAY"
+    UNDERTIME = "UNDERTIME"
+    ON_LEAVE = "ON_LEAVE"
+    OFFICIAL_BUSINESS = "OFFICIAL_BUSINESS"
+    REST_DAY = "REST_DAY"
+    HOLIDAY = "HOLIDAY"
+    NO_SCHEDULE = "NO_SCHEDULE"
+    INCOMPLETE_TIME_RECORD = "INCOMPLETE_TIME_RECORD"
+    # Transitional: shift assigned, window not yet closed, nobody timed in.
+    # Deliberately distinct from ABSENT so the system never marks an intern
+    # absent before the shift has ended and grace has elapsed.
+    SCHEDULED = "SCHEDULED"
+    IN_PROGRESS = "IN_PROGRESS"
+
+
+class ApprovalStatus(StrEnum):
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    CANCELLED = "CANCELLED"
+
+
+class AssignmentType(StrEnum):
+    """Schedule assignment kinds, in ascending precedence order."""
+    WEEKLY_RECURRING = "WEEKLY_RECURRING"
+    ROTATING = "ROTATING"
+    TEMPORARY = "TEMPORARY"
+    DAILY_OVERRIDE = "DAILY_OVERRIDE"
+
+
+# Higher number wins when several assignments cover the same date.
+ASSIGNMENT_PRECEDENCE: dict[str, int] = {
+    AssignmentType.WEEKLY_RECURRING: 10,
+    AssignmentType.ROTATING: 20,
+    AssignmentType.TEMPORARY: 30,
+    AssignmentType.DAILY_OVERRIDE: 40,
+}
+
+
+class LedgerSourceType(StrEnum):
+    ATTENDANCE = "ATTENDANCE"
+    ADJUSTMENT = "ADJUSTMENT"
+    LEAVE_CREDIT = "LEAVE_CREDIT"
+    OPENING_BALANCE = "OPENING_BALANCE"
+    REVERSAL = "REVERSAL"
+
+
+class LeaveType(StrEnum):
+    SICK = "SICK"
+    EMERGENCY = "EMERGENCY"
+    PERSONAL = "PERSONAL"
+    SCHOOL_ACTIVITY = "SCHOOL_ACTIVITY"
+    OFFICIAL_BUSINESS = "OFFICIAL_BUSINESS"
+    OTHER = "OTHER"
+
+
+class TechnicalFunction(StrEnum):
+    SERVICE_DESK = "SERVICE_DESK"
+    DESKTOP_SUPPORT = "DESKTOP_SUPPORT"
+    INFRASTRUCTURE = "INFRASTRUCTURE"
+    NETWORK_OPERATIONS = "NETWORK_OPERATIONS"
+    SYSTEMS_ADMINISTRATION = "SYSTEMS_ADMINISTRATION"
+    CYBERSECURITY = "CYBERSECURITY"
+    IT_ASSET_MANAGEMENT = "IT_ASSET_MANAGEMENT"
+    IT_PROJECTS = "IT_PROJECTS"
+    TECHNICAL_DOCUMENTATION = "TECHNICAL_DOCUMENTATION"
+
+
+class ExposureArea(StrEnum):
+    """Technical Exposure Tracker taxonomy - actual IT experience gained."""
+    DESKTOP_TROUBLESHOOTING = "DESKTOP_TROUBLESHOOTING"
+    AD_ADMINISTRATION = "AD_ADMINISTRATION"
+    NETWORKING = "NETWORKING"
+    HARDWARE_DEPLOYMENT = "HARDWARE_DEPLOYMENT"
+    PATCHING = "PATCHING"
+    DOCUMENTATION = "DOCUMENTATION"
+    PROJECTS = "PROJECTS"
+    SERVICE_DESK_HANDLING = "SERVICE_DESK_HANDLING"
+    SECURITY_COMPLIANCE = "SECURITY_COMPLIANCE"
+    BACKUP_RECOVERY = "BACKUP_RECOVERY"
+
+
+class ProficiencyLevel(StrEnum):
+    OBSERVED = "OBSERVED"
+    ASSISTED = "ASSISTED"
+    PERFORMED_SUPERVISED = "PERFORMED_SUPERVISED"
+    PERFORMED_INDEPENDENT = "PERFORMED_INDEPENDENT"
+
+
+class DutyBoardState(StrEnum):
+    """Live duty board buckets."""
+    ON_DUTY = "ON_DUTY"
+    ON_BREAK = "ON_BREAK"
+    EXPECTED_TO_REPORT = "EXPECTED_TO_REPORT"
+    LATE_NO_TIME_IN = "LATE_NO_TIME_IN"
+    COMPLETED_SHIFT = "COMPLETED_SHIFT"
+    ABSENT = "ABSENT"
+    UPCOMING_SHIFT = "UPCOMING_SHIFT"
+    ON_LEAVE = "ON_LEAVE"
+    REST_DAY = "REST_DAY"
+    MISSING_TIME_OUT = "MISSING_TIME_OUT"
+
+
+class TimesheetPeriod(StrEnum):
+    DAILY = "DAILY"
+    MONTHLY = "MONTHLY"
+
+
+class TimesheetStatus(StrEnum):
+    DRAFT = "DRAFT"
+    SUBMITTED = "SUBMITTED"
+    SIGNED = "SIGNED"
+    REJECTED = "REJECTED"
+
+
+class ForecastRisk(StrEnum):
+    ON_TRACK = "ON_TRACK"
+    AT_RISK = "AT_RISK"
+    WILL_MISS_DEADLINE = "WILL_MISS_DEADLINE"
+    COMPLETED = "COMPLETED"
+    NO_DATA = "NO_DATA"
+
+
+class AlertType(StrEnum):
+    MISSING_TIME_IN = "MISSING_TIME_IN"
+    MISSING_TIME_OUT = "MISSING_TIME_OUT"
+    LATE_ARRIVAL = "LATE_ARRIVAL"
+    EXCESSIVE_ABSENCES = "EXCESSIVE_ABSENCES"
+    UNUSUAL_WORKING_HOURS = "UNUSUAL_WORKING_HOURS"
+    OVERLAPPING_ATTENDANCE = "OVERLAPPING_ATTENDANCE"
+    SCHEDULE_CONFLICT = "SCHEDULE_CONFLICT"
+    PENDING_ATTENDANCE_APPROVAL = "PENDING_ATTENDANCE_APPROVAL"
+    OJT_COMPLETION_APPROACHING = "OJT_COMPLETION_APPROACHING"
+    DEADLINE_AT_RISK = "DEADLINE_AT_RISK"
+    SHIFT_REMINDER = "SHIFT_REMINDER"
+    MILESTONE_REACHED = "MILESTONE_REACHED"
+    SCHEDULE_CHANGED = "SCHEDULE_CHANGED"
+    TIMESHEET_SIGNED = "TIMESHEET_SIGNED"
