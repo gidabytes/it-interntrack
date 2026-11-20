@@ -4,7 +4,8 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173,
+    port: 5174,
+    strictPort: true,
     // The API is served separately. Proxying in dev means the browser sees a
     // single origin, so no CORS handling is needed while developing.
     proxy: {

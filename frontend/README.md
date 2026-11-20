@@ -12,7 +12,7 @@ npm install
 npm run dev
 ```
 
-Open **http://localhost:5173**.
+Open **http://localhost:5174**.
 
 The dev server proxies `/api` to `http://127.0.0.1:8000`, so the browser sees a
 single origin and no CORS configuration is needed while developing. Point it

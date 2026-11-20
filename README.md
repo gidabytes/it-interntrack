@@ -114,6 +114,10 @@ monitoring, attendance exceptions, technical exposure.
 
 ## Quick start
 
+New to the project? **[RUNNING.md](RUNNING.md)** is a step-by-step guide from a
+clean machine to a working application, including troubleshooting. The short
+version follows.
+
 ```bash
 git clone https://github.com/gidabytes/it-interntrack.git
 cd it-interntrack/backend
@@ -146,7 +150,7 @@ npm install
 npm run dev
 ```
 
-Open **http://localhost:5173** for the application, or
+Open **http://localhost:5174** for the application, or
 **http://localhost:8000/api/docs** for the interactive API.
 
 Signing in with demo data: `itmanager`, `rsantos` (supervisor), `jvaldez`
