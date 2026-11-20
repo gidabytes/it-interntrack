@@ -33,6 +33,15 @@ class Settings(BaseSettings):
     DATABASE_URL: str = f"sqlite:///{BASE_DIR / 'interntrack.db'}"
     SQL_ECHO: bool = False
 
+    # Connection pool, for a direct PostgreSQL connection. Ignored behind a
+    # transaction-mode pooler (Supabase port 6543), where the pooler does the
+    # pooling and a second pool here would exhaust the connection limit.
+    DB_POOL_SIZE: int = 5
+    DB_MAX_OVERFLOW: int = 10
+    # Recycle below typical idle timeouts so a stale connection is replaced
+    # rather than failing a request.
+    DB_POOL_RECYCLE: int = 1800
+
     # --- Security -----------------------------------------------------------
     SECRET_KEY: str = "CHANGE-ME-IN-PRODUCTION-use-openssl-rand-hex-32"
     JWT_ALGORITHM: str = "HS256"
@@ -67,6 +76,25 @@ class Settings(BaseSettings):
     @property
     def is_sqlite(self) -> bool:
         return self.DATABASE_URL.startswith("sqlite")
+
+    @property
+    def is_postgres(self) -> bool:
+        return self.DATABASE_URL.startswith(("postgresql", "postgres://"))
+
+    @property
+    def is_supabase(self) -> bool:
+        return "supabase.co" in self.DATABASE_URL.lower()
+
+    @property
+    def database_backend(self) -> str:
+        """Human-readable backend name, for status output and logs."""
+        if self.is_sqlite:
+            return "sqlite"
+        if self.is_supabase:
+            return "postgresql (supabase)"
+        if self.is_postgres:
+            return "postgresql"
+        return self.DATABASE_URL.split("://")[0]
 
 
 @lru_cache

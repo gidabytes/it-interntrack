@@ -413,15 +413,31 @@ def system_status(
             "detail": (
                 "SQLite is in use. Acceptable for a single instance; "
                 "PostgreSQL is recommended for production."
-                if settings.is_sqlite else "PostgreSQL connection configured."
+                if settings.is_sqlite
+                else f"{settings.database_backend} connection configured."
             ),
         },
     ]
+
+    if settings.is_supabase and "supabase.co" in settings.DATABASE_URL.lower() \
+            and "localhost" not in settings.DATABASE_URL.lower():
+        checks.append({
+            "check": "Intern personal data stays on the internal network",
+            "ok": False,
+            "detail": (
+                "The database is hosted on Supabase Cloud, so intern names, "
+                "email addresses, contact numbers and emergency contacts are "
+                "stored outside your network. Field-level encryption still "
+                "applies, but this is a data-residency decision - see "
+                "docs/SUPABASE.md. Self-hosted Supabase or on-premises "
+                "PostgreSQL keeps the data inside the network."
+            ),
+        })
     return {
         "application": settings.APP_NAME,
         "version": settings.APP_VERSION,
         "business_timezone": settings.BUSINESS_TIMEZONE,
-        "database": "sqlite" if settings.is_sqlite else "postgresql",
+        "database": settings.database_backend,
         "debug": settings.DEBUG,
         "all_passed": all(c["ok"] for c in checks),
         "checks": checks,

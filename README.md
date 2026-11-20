@@ -8,6 +8,7 @@ department where interns work rotating and overnight shifts rather than a
 Monday-to-Friday day shift.
 
 [![tests](https://img.shields.io/badge/tests-162%20passing-brightgreen)](#testing)
+[![postgres](https://img.shields.io/badge/verified%20on-PostgreSQL%2016-blue)](docs/SUPABASE.md)
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.11%2B-blue)](#requirements)
 
@@ -68,6 +69,21 @@ costs an intern real hours:
 4. **Technical exposure tracker** — logs actual hands-on experience (desktop troubleshooting, AD administration, networking, hardware deployment, patching, documentation, projects) with proficiency levels, a per-intern coverage matrix and department-level gap reporting.
 5. **Management compliance dashboard** — attendance compliance and OJT completion per team, approval backlog with aging per supervisor, excessive-absence detection, and a prioritised alert feed.
 
+### Web interface
+React + TypeScript + Vite + Tailwind, dark and light themes, built against the
+palette in the specification:
+- Management dashboard with KPI cards and Recharts analytics
+- Live duty board that stays correct across midnight, auto-refreshing
+- Compliance dashboard with alerts, per-team bars and supervisor backlog
+- Intern list and detail with progress, milestones and deadline forecast
+- Attendance register with inline approve and approve-with-overtime
+- Month calendar of the resolved schedule
+- Timesheets: submit, sign, verify
+- Technical exposure matrix with gap shading
+- Reports with in-page preview and Excel / CSV / PDF download
+- Admin settings with the live deployment check
+- Intern self-service: time clock, progress, schedule, own attendance
+
 ### Reporting
 15 reports, each exportable as **Excel**, **CSV** or **PDF** with print-friendly
 layouts and signature blocks: daily attendance, weekly and monthly summaries,
@@ -88,8 +104,11 @@ monitoring, attendance exceptions, technical exposure.
 ## Requirements
 
 - Python 3.11 or newer
+- Node 18 or newer (for the web interface)
 - SQLite (bundled) for development or a single instance; **PostgreSQL recommended for production**
-- No cloud dependency — designed to run on an internal IT network
+- No cloud dependency — designed to run on an internal IT network.
+  Supabase or any PostgreSQL works by changing one connection string; see
+  [docs/SUPABASE.md](docs/SUPABASE.md)
 
 ---
 
@@ -119,7 +138,21 @@ python -m app.cli seed-demo
 uvicorn app.main:app --reload
 ```
 
-Open **http://localhost:8000/api/docs** for the interactive API.
+Then start the web interface in a second terminal:
+
+```bash
+cd ../frontend
+npm install
+npm run dev
+```
+
+Open **http://localhost:5173** for the application, or
+**http://localhost:8000/api/docs** for the interactive API.
+
+Signing in with demo data: `itmanager`, `rsantos` (supervisor), `jvaldez`
+(mentor) or `ana.cruz` (intern) — password `InternTrack#2026` — plus the
+`admin` account you set during bootstrap. Each role sees a different
+navigation set.
 
 > **Set `FERNET_KEYS` before entering real data.** Without it the application
 > refuses to start (unless `DEBUG=true`), because intern PII would otherwise be
@@ -138,6 +171,13 @@ curl -H "Authorization: Bearer <token>" localhost:8000/api/admin/system-status
 ## Project layout
 
 ```
+frontend/            React + TypeScript + Vite + Tailwind
+  src/api/           typed client and response shapes
+  src/components/    shell and shared UI
+  src/hooks/         auth session, theme
+  src/lib/           Asia/Manila formatting, status colour mapping
+  src/pages/         one file per screen
+
 backend/
   app/
     core/            config, database, Fernet crypto, timezone arithmetic,
@@ -253,6 +293,10 @@ PYTHONPATH=. pytest -m shift_matrix -v      # all 17 templates
 PYTHONPATH=. pytest -m security -v          # auth, RBAC, encryption
 ```
 
+The suite runs against **both SQLite and PostgreSQL** — set `TEST_DATABASE_URL`
+to exercise Postgres — because the models are meant to be dialect-neutral and
+that is how it stays true.
+
 Coverage includes every scenario the specification mandates — regular,
 afternoon and overnight shifts; late arrival and early time-out; unpaid and
 multiple breaks; missing time-out; duplicate time-in; rest days; approved and
@@ -279,10 +323,10 @@ known limitations.
 
 ## Roadmap
 
-The backend, engine, API and test suite are complete. The React + TypeScript
-frontend described in the specification is **not yet built** — the API is
-finished and documented, so it can be developed against
-`/api/openapi.json`. See [docs/STATUS.md](docs/STATUS.md).
+Backend, engine, API, frontend and test suite are complete. The main gaps are
+schedule editing and intern registration from the UI (both already have tested
+endpoints), notification delivery, and file uploads. See
+[docs/STATUS.md](docs/STATUS.md) for the full list.
 
 ---
 

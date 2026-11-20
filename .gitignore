@@ -95,3 +95,7 @@ node_modules/
 .pnpm-store/
 frontend/dist/
 frontend/.vite/
+
+# --- Frontend build output --------------------------------------------------
+frontend/dist/
+frontend/node_modules/

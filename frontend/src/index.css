@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  html.light {
+    color-scheme: light;
+  }
+  body {
+    @apply bg-base text-slate-200 antialiased;
+  }
+  html.light body {
+    @apply bg-slate-50 text-slate-800;
+  }
+  /* Tabular figures everywhere numbers are compared down a column. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-edge bg-card p-5;
+  }
+  html.light .card {
+    @apply border-slate-200 bg-white shadow-sm;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2
+           text-sm font-medium transition disabled:cursor-not-allowed
+           disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-primary text-white hover:bg-primary-hover;
+  }
+  .btn-ghost {
+    @apply btn border border-edge text-slate-300 hover:bg-white/5;
+  }
+  html.light .btn-ghost {
+    @apply border-slate-300 text-slate-700 hover:bg-slate-100;
+  }
+  .input {
+    @apply w-full rounded-lg border border-edge bg-base/60 px-3 py-2 text-sm
+           text-slate-100 outline-none placeholder:text-slate-500
+           focus:border-primary focus:ring-1 focus:ring-primary;
+  }
+  html.light .input {
+    @apply border-slate-300 bg-white text-slate-900 placeholder:text-slate-400;
+  }
+  .label {
+    @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400;
+  }
+  .th {
+    @apply whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold
+           uppercase tracking-wide text-slate-400;
+  }
+  .td {
+    @apply whitespace-nowrap border-t border-edge px-3 py-2.5 text-sm;
+  }
+  html.light .td {
+    @apply border-slate-200;
+  }
+}

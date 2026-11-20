@@ -685,7 +685,7 @@ def upgrade() -> None:
     sa.Column('created_by_id', sa.Integer(), nullable=True),
     sa.Column('updated_by_id', sa.Integer(), nullable=True),
     sa.Column('remarks', sa.String(length=1000), nullable=True),
-    sa.CheckConstraint('(is_rest_day = 1 AND shift_template_id IS NULL) OR shift_template_id IS NOT NULL', name='ck_assignment_shift_or_rest'),
+    sa.CheckConstraint('(is_rest_day AND shift_template_id IS NULL) OR shift_template_id IS NOT NULL', name='ck_assignment_shift_or_rest'),
     sa.CheckConstraint('day_of_week IS NULL OR (day_of_week >= 0 AND day_of_week <= 6)', name='ck_assignment_dow_range'),
     sa.ForeignKeyConstraint(['approved_by_id'], ['users.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['intern_id'], ['interns.id'], ondelete='CASCADE'),

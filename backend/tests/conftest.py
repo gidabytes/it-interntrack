@@ -41,9 +41,50 @@ TODAY = date(2026, 11, 20)          # a Friday
 MONDAY = date(2026, 11, 16)
 
 
+# Set TEST_DATABASE_URL to run the whole suite against PostgreSQL instead of
+# in-memory SQLite. Both must pass: the models are dialect-neutral and this is
+# how that stays true.
+TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
+
+
 @pytest.fixture(scope="function")
 def db():
-    """In-memory database, one per test, with foreign keys enforced."""
+    """One isolated database per test, with foreign keys enforced.
+
+    SQLite: in-memory. PostgreSQL: a throwaway schema per test, dropped after,
+    which gives the same isolation without a server round-trip per table.
+    """
+    if TEST_DATABASE_URL:
+        import uuid
+
+        schema = f"t{uuid.uuid4().hex[:12]}"
+        admin = create_engine(TEST_DATABASE_URL, isolation_level="AUTOCOMMIT")
+        with admin.connect() as c:
+            c.exec_driver_sql(f'CREATE SCHEMA "{schema}"')
+        admin.dispose()
+
+        engine = create_engine(
+            TEST_DATABASE_URL,
+            connect_args={"options": f"-csearch_path={schema}"},
+            poolclass=StaticPool,
+        )
+        Base.metadata.create_all(engine)
+        Session = sessionmaker(bind=engine, expire_on_commit=False)
+        session = Session()
+        ensure_defaults(session)
+        ensure_standard_shifts(session)
+        session.commit()
+        try:
+            yield session
+        finally:
+            session.close()
+            engine.dispose()
+            admin = create_engine(TEST_DATABASE_URL, isolation_level="AUTOCOMMIT")
+            with admin.connect() as c:
+                c.exec_driver_sql(f'DROP SCHEMA "{schema}" CASCADE')
+            admin.dispose()
+        return
+
     engine = create_engine(
         "sqlite://",
         connect_args={"check_same_thread": False},

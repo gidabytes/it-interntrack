@@ -131,8 +131,12 @@ class ScheduleAssignment(Base, TimestampMixin, SoftDeleteMixin, ActorMixin, Rema
 
     __tablename__ = "schedule_assignments"
     __table_args__ = (
+        # Written as a bare boolean, NOT "is_rest_day = 1": SQLite stores
+        # booleans as integers so the comparison works there, but PostgreSQL
+        # has a real boolean type and rejects `boolean = integer`. Keep every
+        # CHECK constraint in this project dialect-neutral.
         CheckConstraint(
-            "(is_rest_day = 1 AND shift_template_id IS NULL) OR shift_template_id IS NOT NULL",
+            "(is_rest_day AND shift_template_id IS NULL) OR shift_template_id IS NOT NULL",
             name="ck_assignment_shift_or_rest",
         ),
         CheckConstraint(

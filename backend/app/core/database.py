@@ -11,21 +11,62 @@ from datetime import timezone
 
 from sqlalchemy import DateTime, TypeDecorator, create_engine, event
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
+from sqlalchemy.pool import NullPool
 
 from app.core.config import settings
 
-connect_args: dict = {}
-if settings.is_sqlite:
-    # FastAPI serves requests on a threadpool; SQLite needs this relaxed.
-    connect_args = {"check_same_thread": False}
+def _is_transaction_pooler(url: str) -> bool:
+    """Is this URL pointing at a transaction-mode connection pooler?
 
-engine = create_engine(
-    settings.DATABASE_URL,
-    echo=settings.SQL_ECHO,
-    connect_args=connect_args,
-    pool_pre_ping=True,
-    future=True,
-)
+    Supabase exposes two endpoints:
+
+      * port 5432 - a direct connection, or the session-mode pooler
+      * port 6543 - the TRANSACTION-mode pooler (pgbouncer)
+
+    Transaction mode hands a different backend connection to each statement,
+    so server-side prepared statements break: psycopg prepares a statement on
+    one backend and then tries to execute it on another, which fails with
+    "prepared statement does not exist". Detected here so the right connection
+    arguments are applied automatically rather than left as a trap.
+    """
+    lowered = url.lower()
+    return ":6543" in lowered or "pooler.supabase.co" in lowered
+
+
+def _build_engine_kwargs() -> tuple[dict, dict]:
+    """Connection and engine arguments for the configured database."""
+    connect_args: dict = {}
+    engine_kwargs: dict = {
+        "echo": settings.SQL_ECHO,
+        "pool_pre_ping": True,
+        "future": True,
+    }
+
+    if settings.is_sqlite:
+        # FastAPI serves requests on a threadpool; SQLite needs this relaxed.
+        connect_args["check_same_thread"] = False
+        return connect_args, engine_kwargs
+
+    # --- PostgreSQL ---------------------------------------------------------
+    if _is_transaction_pooler(settings.DATABASE_URL):
+        # Disable prepared statements entirely: required behind pgbouncer in
+        # transaction mode. psycopg treats None as "never prepare".
+        connect_args["prepare_threshold"] = None
+        # The pooler is already doing the pooling. Keeping a second pool here
+        # holds server-side connections open and will exhaust the project's
+        # connection limit under load.
+        engine_kwargs["poolclass"] = NullPool
+    else:
+        engine_kwargs["pool_size"] = settings.DB_POOL_SIZE
+        engine_kwargs["max_overflow"] = settings.DB_MAX_OVERFLOW
+        engine_kwargs["pool_recycle"] = settings.DB_POOL_RECYCLE
+
+    return connect_args, engine_kwargs
+
+
+connect_args, engine_kwargs = _build_engine_kwargs()
+
+engine = create_engine(settings.DATABASE_URL, connect_args=connect_args, **engine_kwargs)
 
 
 if settings.is_sqlite:

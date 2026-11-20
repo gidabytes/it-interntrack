@@ -3,7 +3,7 @@
 What is built, what is not, and the limitations worth knowing before this goes
 anywhere near real intern records.
 
-Last updated: 2026-11-20
+Last updated: 2026-11-21
 
 ---
 
@@ -48,6 +48,22 @@ Last updated: 2026-11-20
 - [x] **Technical exposure tracker** — 10 areas, 4 proficiency levels, targets, per-intern matrix, department gap report
 - [x] **Compliance dashboard** — per-team compliance, approval backlog with aging, excessive absences, prioritised alerts
 
+### Frontend (React + TypeScript + Vite + Tailwind)
+- [x] Sidebar shell with permission-driven navigation and dark / light themes
+- [x] Sign-in, session restore, automatic sign-out on token expiry
+- [x] Management dashboard: 10 KPI cards and Recharts analytics
+- [x] Live duty board, correct across midnight, auto-refreshing
+- [x] Compliance dashboard: alerts, per-team bars, approval backlog, at-risk list
+- [x] Intern list with filters; intern detail with progress, milestones and forecast
+- [x] Attendance register with inline approve and approve-with-overtime
+- [x] Month calendar showing the resolved schedule
+- [x] Timesheets: submit, sign, verify signature
+- [x] Technical exposure coverage matrix with gap shading
+- [x] Reports: preview in-page, export to Excel / CSV / PDF
+- [x] Admin settings with the live deployment check
+- [x] Intern self-service: time clock, progress, schedule, own attendance
+- [x] Verified end to end in a real browser against PostgreSQL (35 UI checks)
+
 ### Platform
 - [x] 29 tables, normalised, with FKs, unique constraints, check constraints, 114 indexes, soft delete
 - [x] Alembic migrations; clean upgrade/downgrade, no schema drift
@@ -70,28 +86,6 @@ Last updated: 2026-11-20
 
 ## Not built
 
-### Frontend (React + TypeScript + Vite + Tailwind)
-**Not started.** The specification describes a sidebar dashboard with KPI cards,
-charts (Recharts), an interactive calendar (FullCalendar), dark and light
-themes, and the suggested colour palette.
-
-The API is complete and documented at `/api/openapi.json`, so the frontend can
-be built against it without backend changes. Every screen the specification
-names has endpoints behind it:
-
-| Screen | Endpoint |
-|---|---|
-| Management dashboard | `GET /api/dashboard` |
-| Compliance dashboard | `GET /api/dashboard/compliance` |
-| Live duty board | `GET /api/dashboard/duty-board` |
-| Shift handover | `GET /api/dashboard/handover` |
-| Attendance calendar | `GET /api/schedules/calendar/{intern_id}` |
-| Visual shift selector | `GET /api/shifts/selector` |
-| OJT progress page | `GET /api/ojt/progress/{intern_id}` |
-| Exposure matrix | `GET /api/exposure/matrix` |
-| Timesheet (printable) | `GET /api/timesheets/{id}` |
-| Reports | `GET /api/reports/{key}?fmt=…` |
-
 ### Other gaps
 - **Notification delivery.** The `notifications` table, alert types and the
   alert feed on the compliance dashboard exist, but nothing writes
@@ -102,8 +96,14 @@ names has endpoints behind it:
   the command. Suggested: nightly, after the latest shift ends.
 - **File uploads.** Profile photos and supporting documents have path columns
   and validation settings, but no upload endpoint.
-- **Drag-and-drop schedule assignment.** The API supports individual and bulk
-  assignment with conflict validation; drag-and-drop is a frontend feature.
+- **Schedule editing from the UI.** The frontend displays the resolved
+  calendar; creating and editing assignments (including drag-and-drop) still
+  goes through the API. The endpoints exist with full conflict validation.
+- **Intern registration and editing from the UI.** Read-only in the frontend
+  today; `POST`/`PATCH /api/interns` exist and are tested.
+- **FullCalendar.** The month view is a hand-built grid rather than
+  FullCalendar, which keeps the bundle smaller. Swapping it in later is
+  contained to one component.
 - **Shift handover notes.** The handover *view* exists; a notes field for one
   shift to brief the next is not implemented.
 - **Docker packaging.** Deployment is documented for systemd and nginx. The
@@ -153,11 +153,11 @@ names has endpoints behind it:
 
 ## Suggested next steps
 
-1. Build the React frontend against the existing API.
-2. Schedule `finalize-day` nightly (cron or Task Scheduler), after the latest
+1. Schedule `finalize-day` nightly (cron or Task Scheduler), after the latest
    shift ends.
-3. Add a notification writer and a transport, so alerts reach supervisors
+2. Add a notification writer and a transport, so alerts reach supervisors
    instead of waiting to be looked at.
+3. Add intern registration and schedule assignment screens to the frontend.
 4. Add the upload endpoint for profile photos and supporting documents.
 5. Pilot with one team for a full OJT cycle before site-wide rollout, and
    reconcile the signed timesheets against what the schools accept.
