@@ -9,6 +9,7 @@
     python -m app.cli rotate-encryption         # re-encrypt under the primary key
     python -m app.cli finalize-day 2026-11-20
     python -m app.cli status
+    python -m app.cli diagnose                  # why can I not sign in?
 """
 from __future__ import annotations
 
@@ -20,7 +21,8 @@ from sqlalchemy import select
 
 from app.core.config import settings
 from app.core.crypto import (
-    encryption_enabled, generate_blind_index_key, generate_key, reset_cipher_cache,
+    EncryptionNotConfigured, encryption_enabled, generate_blind_index_key,
+    generate_key, reset_cipher_cache,
 )
 from app.core.database import Base, SessionLocal, engine
 
@@ -167,6 +169,141 @@ def cmd_finalize_day(args) -> int:
     return 0
 
 
+def cmd_diagnose(args) -> int:
+    """Explain why a sign-in is failing.
+
+    Sign-in problems are nearly always one of four things, and guessing between
+    them wastes time: the account does not exist, the password is not the one
+    you think, the account is locked after repeated failures, or the encryption
+    keys no longer match the stored data. This reports all four directly from
+    the database.
+    """
+    from sqlalchemy import select
+
+    from app.core.security import verify_password
+    from app.core.timeutil import utc_now
+    from app.models.identity import User
+
+    print(f"Database    : {settings.database_backend}")
+    print(f"DATABASE_URL: {settings.DATABASE_URL}")
+    print(
+        "Encryption  : "
+        + ("ON" if encryption_enabled() else "OFF  <-- the API will refuse to start")
+    )
+    print()
+
+    try:
+        with SessionLocal() as db:
+            # Encrypted columns are decrypted as rows load, so a key mismatch
+            # surfaces here rather than on attribute access. It is a distinct
+            # failure from "the tables do not exist" and must not be reported
+            # as one: the fixes are opposite.
+            try:
+                users = db.scalars(select(User).order_by(User.username)).all()
+            except EncryptionNotConfigured as exc:
+                print("FERNET_KEYS DOES NOT MATCH THIS DATABASE.")
+                print(f"  {exc}")
+                print()
+                print("  The accounts exist, but their encrypted fields cannot be read,")
+                print("  so sign-in fails with a server error rather than a bad-password")
+                print("  message. Restore the keys this database was created with.")
+                print("  If they are genuinely lost and this is only demo data, delete")
+                print("  the database file and re-run: alembic upgrade head, bootstrap.")
+                return 1
+            except Exception as exc:
+                missing_tables = "no such table" in str(exc).lower() or (
+                    "does not exist" in str(exc).lower()
+                )
+                if missing_tables:
+                    print("THE DATABASE HAS NO TABLES.")
+                    print("  -> alembic upgrade head")
+                    print("  -> python -m app.cli bootstrap --password 'YourPassword123!'")
+                else:
+                    print(f"CANNOT READ THE DATABASE: {type(exc).__name__}")
+                    print(f"  {str(exc).splitlines()[0][:200]}")
+                    print()
+                    print("  Check DATABASE_URL in .env, and that the server is running")
+                    print("  if this is PostgreSQL.")
+                return 1
+
+            if not users:
+                print("NO USER ACCOUNTS EXIST.")
+                print("  -> python -m app.cli bootstrap --password 'YourPassword123!'")
+                return 1
+
+            print(f"{len(users)} account(s):\n")
+            print(f"  {'username':22} {'roles':24} {'active':7} locked")
+            print("  " + "-" * 64)
+            now = utc_now()
+            locked_any = False
+            for u in users:
+                if u.locked_until and u.locked_until > now:
+                    mins = int((u.locked_until - now).total_seconds() // 60) + 1
+                    locked = f"YES ({mins}m left)"
+                    locked_any = True
+                else:
+                    locked = "no"
+                roles = ",".join(sorted(u.role_names)) or "(none)"
+                print(f"  {u.username:22} {roles:24} {str(u.is_active):7} {locked}")
+
+            demo_names = {
+                "itmanager", "rsantos", "mlim", "jvaldez", "pcruz", "ana.cruz",
+            }
+            demo = [u for u in users if u.username in demo_names]
+
+            print()
+            if not demo:
+                print("DEMO ACCOUNTS ARE NOT PRESENT.")
+                print("  You ran bootstrap but not seed-demo. Either:")
+                print("    python -m app.cli seed-demo")
+                print("  or sign in as 'admin' with the password you gave to bootstrap.")
+            else:
+                password = args.password or "InternTrack#2026"
+                label = "the password you supplied" if args.password else (
+                    "the demo password 'InternTrack#2026'"
+                )
+                print(f"Checking {label}:")
+                for u in demo:
+                    ok = verify_password(password, u.password_hash)
+                    print(f"  {u.username:22} {'CORRECT' if ok else 'does NOT match'}")
+
+            if any(u.username == "admin" for u in users):
+                print()
+                print("Note: 'admin' uses the password you passed to bootstrap,")
+                print("      NOT the demo password.")
+
+            if locked_any:
+                print()
+                print("One or more accounts are locked after repeated failed")
+                print("sign-ins. Wait for the lock to expire, or reset the password:")
+                print("  POST /api/admin/users/{id}/reset-password")
+
+            # Encrypted fields are only readable with the right keys; a failure
+            # here is the cause of a sign-in that returns a server error rather
+            # than 'incorrect password'.
+            print()
+            try:
+                _ = [u.email for u in users[:5]]
+                print("Encrypted field read: OK (FERNET_KEYS matches the stored data)")
+            except Exception as exc:
+                print(f"Encrypted field read: FAILED - {type(exc).__name__}")
+                print("  FERNET_KEYS does not match the data in this database.")
+                print("  Restore the original keys, or recreate the database.")
+                return 1
+    except EncryptionNotConfigured as exc:
+        print(f"ENCRYPTION PROBLEM: {exc}")
+        return 1
+    except Exception as exc:
+        print(f"CANNOT CONNECT TO THE DATABASE: {type(exc).__name__}")
+        print(f"  {str(exc).splitlines()[0][:200]}")
+        print()
+        print(f"  DATABASE_URL is: {settings.DATABASE_URL}")
+        print("  Check it is correct, and that the server is reachable.")
+        return 1
+
+    return 0
+
+
 def cmd_status(_args) -> int:
     import app.models as m
     from app.models.identity import User
@@ -212,6 +349,13 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("finalize-day", help="Mark absences for a business date")
     p.add_argument("business_date", help="YYYY-MM-DD")
 
+    p = sub.add_parser("diagnose", help="Explain why a sign-in is failing")
+    p.add_argument(
+        "--password",
+        default=None,
+        help="Check this password instead of the demo one",
+    )
+
     sub.add_parser("status", help="Show configuration and row counts")
 
     args = parser.parse_args(argv)
@@ -224,6 +368,7 @@ def main(argv: list[str] | None = None) -> int:
         "purge-demo": cmd_purge_demo,
         "rotate-encryption": cmd_rotate_encryption,
         "finalize-day": cmd_finalize_day,
+        "diagnose": cmd_diagnose,
         "status": cmd_status,
     }
     return handlers[args.command](args)

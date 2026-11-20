@@ -260,6 +260,21 @@ to talk to the school about the deadline.
 
 ---
 
+## When someone cannot sign in
+
+```bash
+cd backend && python -m app.cli diagnose
+```
+
+Lists every account and its roles, flags lockouts with the time remaining,
+checks a password against the stored hashes, and confirms `FERNET_KEYS` can
+still read the encrypted fields. The four usual causes — wrong account, no demo
+data, lockout, key mismatch — each produce a different and specific message.
+
+Resetting a password as an administrator:
+`POST /api/admin/users/{id}/reset-password`. The user is then forced to change
+it at next sign-in.
+
 ## Demo data
 
 `python -m app.cli seed-demo` creates 12 interns across 5 teams with six weeks

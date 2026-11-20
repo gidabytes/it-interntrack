@@ -263,6 +263,23 @@ Schedule `finalize-day` nightly once you go live. `SHIFT-17` ends at 08:00, so
 
 ## If something goes wrong
 
+### Start here: the diagnostic
+
+Most sign-in problems are one of four things, and this tells you which:
+
+```bash
+cd backend
+source .venv/bin/activate
+python -m app.cli diagnose
+```
+
+It lists every account with its roles, flags any that are locked and for how
+long, checks the demo password against the stored hashes, and verifies that
+`FERNET_KEYS` can still read the encrypted fields. Check a different password
+with `--password 'whatever'`.
+
+
+
 **`Address already in use`** — something is already on that port.
 
 ```bash
@@ -284,10 +301,20 @@ data was written with. Restore the original keys. If they are genuinely lost,
 the encrypted columns cannot be recovered; for a demo database, delete
 `backend/interntrack.db` and redo steps 5–6.
 
-**Sign-in says "Incorrect username or password"** and you are sure it is right
-— five failed attempts locks an account for 15 minutes. Wait, or reset it:
-`python -m app.cli bootstrap` recreates nothing, so use the admin account and
-`POST /api/admin/users/{id}/reset-password`.
+**Sign-in fails.** Run `python -m app.cli diagnose` first. The usual causes:
+
+- **Wrong password for `admin`.** The demo password `InternTrack#2026` belongs
+  to the demo accounts (`itmanager`, `rsantos`, `mlim`, `jvaldez`, `pcruz`,
+  `ana.cruz`). The `admin` account uses the password you passed to
+  `bootstrap`.
+- **`seed-demo` was never run,** so only `admin` exists and the demo usernames
+  are not there at all.
+- **Locked out.** Five failed attempts locks an account for 15 minutes. Wait,
+  or reset it as an administrator via
+  `POST /api/admin/users/{id}/reset-password`.
+- **`FERNET_KEYS` changed.** Then sign-in fails with a server error rather than
+  a bad-password message, because the account's encrypted fields cannot be
+  read. The diagnostic says so explicitly.
 
 **Blank page at localhost:5174** — check the `npm run dev` terminal for errors,
 and that the API terminal is still running. The browser console (F12) will show
