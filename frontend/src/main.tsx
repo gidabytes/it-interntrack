@@ -13,6 +13,7 @@ import { Shell } from "./components/Shell";
 import { Spinner } from "./components/ui";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { Attendance } from "./pages/Attendance";
+import { ChangePassword } from "./pages/ChangePassword";
 import { Compliance } from "./pages/Compliance";
 import { Dashboard } from "./pages/Dashboard";
 import { DutyBoard } from "./pages/DutyBoard";
@@ -55,6 +56,12 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
     );
   }
   if (!user) return <Navigate to="/login" replace />;
+
+  // A temporary password must be replaced before anything else is reachable.
+  // Gating here rather than on a route means it cannot be skipped by typing
+  // a URL: every authenticated page goes through this component.
+  if (user.must_change_password) return <ChangePassword forced />;
+
   return <>{children}</>;
 }
 
@@ -95,6 +102,7 @@ function App() {
         <Route path="/reports" element={<Reports />} />
         <Route path="/shifts" element={<Shifts />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/change-password" element={<ChangePassword />} />
 
         {/* Intern self-service */}
         <Route path="/me/clock" element={<MyClock />} />

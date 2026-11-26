@@ -20,6 +20,8 @@ interface AuthState {
   loading: boolean;
   signIn: (username: string, password: string) => Promise<void>;
   signOut: () => void;
+  /** Re-read the current user, e.g. after a password change clears the flag. */
+  refresh: () => Promise<void>;
   /** True when the user holds any of the given permission codes. */
   can: (...codes: string[]) => boolean;
   hasRole: (...roles: Role[]) => boolean;
@@ -66,6 +68,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  const refresh = useCallback(async () => {
+    const me = await api.get<CurrentUser>("/api/auth/me");
+    setUser(me);
+  }, []);
+
   const signIn = useCallback(async (username: string, password: string) => {
     const res = await api.post<TokenResponse>("/api/auth/login", {
       username,
@@ -83,10 +90,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       signIn,
       signOut,
+      refresh,
       can: (...codes: string[]) => codes.some((c) => permissions.has(c)),
       hasRole: (...wanted: Role[]) => wanted.some((r) => roles.has(r)),
     };
-  }, [user, loading, signIn, signOut]);
+  }, [user, loading, signIn, signOut, refresh]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -10,6 +10,7 @@
     python -m app.cli finalize-day 2026-11-20
     python -m app.cli status
     python -m app.cli diagnose                  # why can I not sign in?
+    python -m app.cli reset-password admin      # regain access to an account
 """
 from __future__ import annotations
 
@@ -166,6 +167,59 @@ def cmd_finalize_day(args) -> int:
         counts = finalize_absences(db, target, rules=rules)
         db.commit()
     print(f"Finalised {target}: {counts}")
+    return 0
+
+
+def cmd_reset_password(args) -> int:
+    """Set a user's password from the command line.
+
+    For regaining access when nobody can sign in. The account is always
+    flagged ``must_change_password``, so whatever is set here cannot survive
+    the next sign-in: the web interface blocks everything until a proper
+    password is chosen.
+
+    That flag is what makes a deliberately simple recovery password
+    acceptable. Without it you would be leaving a weak credential in place
+    indefinitely, which is a finding in any security review.
+    """
+    from sqlalchemy import select
+
+    from app.core.security import hash_password
+    from app.models.identity import User
+
+    with SessionLocal() as db:
+        user = db.scalar(select(User).where(User.username == args.username))
+        if user is None:
+            print(f"No account named '{args.username}'.")
+            print("  Existing accounts:")
+            for u in db.scalars(select(User.username).order_by(User.username)).all():
+                print(f"    {u}")
+            return 1
+
+        user.password_hash = hash_password(args.password)
+        user.must_change_password = not args.no_force_change
+        # Clear any lockout, otherwise the reset appears not to work.
+        user.failed_login_count = 0
+        user.locked_until = None
+        user.is_active = True
+        db.commit()
+
+        print(f"Password set for '{user.username}'.")
+        print(f"  roles  : {', '.join(sorted(user.role_names)) or '(none)'}")
+        print(f"  lockout: cleared")
+        if len(args.password) < 10:
+            print()
+            print(f"  NOTE: '{args.password}' is a weak password. It is usable only")
+            print("        to get back in - the application will require a new one")
+            print("        of at least 10 characters at the next sign-in.")
+        if user.must_change_password:
+            print()
+            print("  The next sign-in will require a password change before")
+            print("  anything else can be done.")
+        else:
+            print()
+            print("  WARNING: --no-force-change was used, so this password will")
+            print("           persist. Do not leave a weak one in place.")
     return 0
 
 
@@ -349,6 +403,21 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("finalize-day", help="Mark absences for a business date")
     p.add_argument("business_date", help="YYYY-MM-DD")
 
+    p = sub.add_parser(
+        "reset-password", help="Set a user's password and clear any lockout"
+    )
+    p.add_argument("username", help="Account to reset, e.g. admin")
+    p.add_argument(
+        "--password",
+        default="admin",
+        help="New password (default: admin, which must then be changed at sign-in)",
+    )
+    p.add_argument(
+        "--no-force-change",
+        action="store_true",
+        help="Do not require a password change at next sign-in (not recommended)",
+    )
+
     p = sub.add_parser("diagnose", help="Explain why a sign-in is failing")
     p.add_argument(
         "--password",
@@ -368,6 +437,7 @@ def main(argv: list[str] | None = None) -> int:
         "purge-demo": cmd_purge_demo,
         "rotate-encryption": cmd_rotate_encryption,
         "finalize-day": cmd_finalize_day,
+        "reset-password": cmd_reset_password,
         "diagnose": cmd_diagnose,
         "status": cmd_status,
     }

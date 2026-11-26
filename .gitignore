@@ -99,3 +99,5 @@ frontend/.vite/
 # --- Frontend build output --------------------------------------------------
 frontend/dist/
 frontend/node_modules/
+tsconfig.tsbuildinfo
+frontend/tsconfig.tsbuildinfo

@@ -137,14 +137,18 @@ export function Shell() {
               {theme === "dark" ? "Light" : "Dark"}
             </button>
 
-            <div className="hidden text-right sm:block">
-              <p className="text-sm font-medium leading-tight text-slate-200">
+            <NavLink
+              to="/change-password"
+              className="hidden text-right sm:block"
+              title="Change your password"
+            >
+              <p className="text-sm font-medium leading-tight text-slate-200 hover:text-primary">
                 {user?.full_name}
               </p>
               <p className="text-xs leading-tight text-slate-500">
                 {user?.roles.map((r) => r.display_name).join(", ")}
               </p>
-            </div>
+            </NavLink>
 
             <button
               className="btn-ghost px-2.5 py-1.5 text-xs"
