@@ -85,10 +85,10 @@ export function Settings() {
       {statusQ.data ? (
         <section className="card mb-5">
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-3">
-            <h2 className="text-sm font-semibold text-slate-200">
+            <h2 className="text-sm font-semibold text-label">
               Deployment check
             </h2>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-label-3">
               {statusQ.data.application} {statusQ.data.version} ·{" "}
               {statusQ.data.database} · {statusQ.data.business_timezone}
             </span>
@@ -106,8 +106,8 @@ export function Settings() {
                   {c.ok ? "✓" : "!"}
                 </span>
                 <div>
-                  <p className="text-slate-200">{c.check}</p>
-                  <p className="text-xs leading-relaxed text-slate-500">
+                  <p className="text-label">{c.check}</p>
+                  <p className="text-xs leading-relaxed text-label-3">
                     {c.detail}
                   </p>
                 </div>
@@ -118,7 +118,7 @@ export function Settings() {
       ) : null}
 
       {saved ? (
-        <p className="mb-4 rounded-lg border border-success/40 bg-success-soft px-4 py-2.5 text-sm text-success">
+        <p className="mb-4 rounded-ios border border-success/40 bg-success-soft px-4 py-2.5 text-sm text-success">
           {saved}
         </p>
       ) : null}
@@ -136,7 +136,7 @@ export function Settings() {
         <div className="space-y-5">
           {(settingsQ.data?.categories ?? []).map((cat) => (
             <section key={cat} className="card">
-              <h2 className="mb-4 text-sm font-semibold text-slate-200">
+              <h2 className="mb-4 text-sm font-semibold text-label">
                 {cat.replace(/_/g, " ")}
               </h2>
               <div className="space-y-4">
@@ -146,11 +146,11 @@ export function Settings() {
                   return (
                     <div
                       key={s.key}
-                      className="grid gap-2 border-b border-edge/60 pb-4 last:border-0 last:pb-0 lg:grid-cols-[1fr_auto]"
+                      className="grid gap-2 border-b border-separator/60 pb-4 last:border-0 last:pb-0 lg:grid-cols-[1fr_auto]"
                     >
                       <div className="min-w-0">
-                        <p className="font-mono text-xs text-slate-300">{s.key}</p>
-                        <p className="mt-0.5 text-xs leading-relaxed text-slate-500">
+                        <p className="font-mono text-xs text-label-2">{s.key}</p>
+                        <p className="mt-0.5 text-xs leading-relaxed text-label-3">
                           {s.description}
                         </p>
                       </div>

@@ -104,6 +104,21 @@ class InternOut(ORMModel):
     user_id: int | None
     remarks: str | None
 
+    # --- Resolved from the school record -----------------------------------
+    # The bare school_id above is useless to a caller: every screen that shows
+    # an intern needs the school's name, and the timesheet needs the person it
+    # gets returned to. Resolving here rather than at each endpoint means none
+    # of them can omit it.
+    school_name: str | None = None
+    school_short_name: str | None = None
+    # Who at the school signs off the hours. Prefers the name recorded on the
+    # intern, which is captured at enrolment, so a later change of coordinator
+    # at the school does not silently rewrite who signed an existing
+    # placement.
+    coordinator_name: str | None = None
+    coordinator_email: str | None = None
+    coordinator_contact: str | None = None
+
 
 class InternSummaryOut(ORMModel):
     id: int

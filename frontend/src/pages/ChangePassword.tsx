@@ -55,11 +55,11 @@ export function ChangePassword({ forced = false }: { forced?: boolean }) {
   const body = (
     <form onSubmit={submit} className="card space-y-4">
       {forced ? (
-        <div className="rounded-lg border border-warning/40 bg-warning-soft px-3 py-2.5">
+        <div className="rounded-ios border border-warning/40 bg-warning-soft px-3 py-2.5">
           <p className="text-sm font-medium text-warning">
             Choose a new password to continue
           </p>
-          <p className="mt-1 text-xs text-slate-300">
+          <p className="mt-1 text-xs text-label-2">
             This account is using a temporary password. Nothing else is
             available until it is changed.
           </p>
@@ -101,10 +101,10 @@ export function ChangePassword({ forced = false }: { forced?: boolean }) {
               key={c.label}
               className={`flex items-center gap-2 text-xs ${
                 next.length === 0
-                  ? "text-slate-500"
+                  ? "text-label-3"
                   : c.ok
                     ? "text-success"
-                    : "text-slate-400"
+                    : "text-label-2"
               }`}
             >
               <span className="w-3 text-center">{c.ok && next ? "✓" : "·"}</span>
@@ -135,13 +135,13 @@ export function ChangePassword({ forced = false }: { forced?: boolean }) {
       </div>
 
       {error ? (
-        <p className="rounded-lg border border-danger/40 bg-danger-soft px-3 py-2 text-sm text-danger">
+        <p className="rounded-ios border border-danger/40 bg-danger-soft px-3 py-2 text-sm text-danger">
           {error}
         </p>
       ) : null}
 
       {done ? (
-        <p className="rounded-lg border border-success/40 bg-success-soft px-3 py-2 text-sm text-success">
+        <p className="rounded-ios border border-success/40 bg-success-soft px-3 py-2 text-sm text-success">
           Password changed. Taking you in…
         </p>
       ) : null}
@@ -172,13 +172,13 @@ export function ChangePassword({ forced = false }: { forced?: boolean }) {
       <div className="grid min-h-screen place-items-center px-4">
         <div className="w-full max-w-sm">
           <div className="mb-6 text-center">
-            <span className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-primary text-lg font-bold text-white">
+            <span className="mx-auto grid h-12 w-12 place-items-center rounded-ios-md bg-primary text-lg font-bold text-white">
               IT
             </span>
-            <h1 className="mt-4 text-lg font-semibold text-slate-100">
+            <h1 className="mt-4 text-lg font-semibold text-label">
               {user?.full_name}
             </h1>
-            <p className="mt-1 text-sm text-slate-400">{user?.username}</p>
+            <p className="mt-1 text-sm text-label-2">{user?.username}</p>
           </div>
           {body}
         </div>
@@ -188,10 +188,10 @@ export function ChangePassword({ forced = false }: { forced?: boolean }) {
 
   return (
     <div className="mx-auto max-w-sm">
-      <h1 className="mb-1 text-xl font-semibold text-slate-100">
+      <h1 className="mb-1 text-xl font-semibold text-label">
         Change password
       </h1>
-      <p className="mb-6 text-sm text-slate-400">
+      <p className="mb-6 text-sm text-label-2">
         You will stay signed in on this device.
       </p>
       {body}

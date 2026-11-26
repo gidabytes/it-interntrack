@@ -68,6 +68,21 @@ def _authenticate(db, request: Request, username: str, password: str) -> User:
 
     if not verify_password(password, user.password_hash):
         user.failed_login_count = (user.failed_login_count or 0) + 1
+        # Every invalid attempt is recorded, not just the one that trips the
+        # lockout. A single failure is noise, but a run of them across several
+        # accounts from one address is the signal worth seeing, and it cannot
+        # be reconstructed later from a lockout entry alone. PCI-DSS 10.2.4
+        # requires invalid access attempts to be logged.
+        audit_service.record(
+            db, action="LOGIN_FAILED", entity_type="user", entity_id=user.id,
+            actor=user,
+            summary=(
+                f"Failed sign-in attempt "
+                f"({user.failed_login_count} of {MAX_FAILED_LOGINS})"
+            ),
+            ip_address=client_ip(request),
+            user_agent=request.headers.get("user-agent"),
+        )
         if user.failed_login_count >= MAX_FAILED_LOGINS:
             user.locked_until = now + timedelta(minutes=LOCKOUT_MINUTES)
             user.failed_login_count = 0

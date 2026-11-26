@@ -47,6 +47,16 @@ export interface Intern {
   emergency_contact_number: string | null;
   emergency_contact_relation: string | null;
   school_id: number | null;
+  /** Resolved from the school record by the API. */
+  school_name: string | null;
+  school_short_name: string | null;
+  /**
+   * Who at the school signs off these hours. Prefers the name captured on the
+   * intern at enrolment over the school's current coordinator.
+   */
+  coordinator_name: string | null;
+  coordinator_email: string | null;
+  coordinator_contact: string | null;
   course: string | null;
   year_level: string | null;
   ojt_start_date: string;
@@ -487,4 +497,146 @@ export interface ReportCatalogue {
   reports: { key: string; title: string }[];
   formats: string[];
   presets: string[];
+}
+
+// --- Schools and the school-side OJT / IT coordinator ----------------------
+
+export interface School {
+  id: number;
+  name: string;
+  short_name: string | null;
+  address: string | null;
+  /** The school-side contact who signs off OJT hours. */
+  coordinator_name: string | null;
+  coordinator_email: string | null;
+  coordinator_contact: string | null;
+  default_required_hours: number | null;
+  is_active: boolean;
+  remarks: string | null;
+  intern_count: number;
+  active_intern_count: number;
+}
+
+export interface PublicSchool {
+  id: number;
+  name: string;
+  short_name: string | null;
+}
+
+export type SchoolInput = Omit<
+  School,
+  "id" | "is_active" | "intern_count" | "active_intern_count"
+>;
+
+// --- Intern self-registration ---------------------------------------------
+
+export type RegistrationStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "REJECTED"
+  | "WITHDRAWN";
+
+export interface RegistrationInput {
+  first_name: string;
+  middle_name?: string | null;
+  last_name: string;
+  email: string;
+  contact_number?: string | null;
+  school_id?: number | null;
+  school_name_text?: string | null;
+  course?: string | null;
+  year_level?: string | null;
+  coordinator_name?: string | null;
+  coordinator_email?: string | null;
+  coordinator_contact?: string | null;
+  required_hours?: number | null;
+  ojt_start_date?: string | null;
+  school_submission_deadline?: string | null;
+  primary_technical_function?: string | null;
+  emergency_contact_name?: string | null;
+  emergency_contact_number?: string | null;
+  emergency_contact_relation?: string | null;
+  applicant_notes?: string | null;
+}
+
+export interface RegistrationAck {
+  reference_code: string;
+  status: RegistrationStatus;
+  message: string;
+}
+
+export interface RegistrationStatusOut {
+  reference_code: string;
+  status: RegistrationStatus;
+  submitted_on: string;
+  reviewed_on: string | null;
+  review_notes: string | null;
+}
+
+export interface Registration {
+  id: number;
+  reference_code: string;
+  status: RegistrationStatus;
+  applicant_name: string;
+  first_name: string;
+  middle_name: string | null;
+  last_name: string;
+  email: string;
+  contact_number: string | null;
+  school_id: number | null;
+  school_name_text: string | null;
+  school_label: string | null;
+  course: string | null;
+  year_level: string | null;
+  coordinator_name: string | null;
+  coordinator_email: string | null;
+  coordinator_contact: string | null;
+  required_hours: number | null;
+  ojt_start_date: string | null;
+  school_submission_deadline: string | null;
+  primary_technical_function: string | null;
+  emergency_contact_name: string | null;
+  emergency_contact_number: string | null;
+  emergency_contact_relation: string | null;
+  applicant_notes: string | null;
+  submitted_ip: string | null;
+  created_at: string;
+  reviewed_at: string | null;
+  reviewed_by_user_id: number | null;
+  review_notes: string | null;
+  created_intern_id: number | null;
+  /** Set when the submitted address already belongs to an intern. */
+  duplicate_of_intern_id: number | null;
+}
+
+export interface RegistrationApproved {
+  intern_id: number;
+  intern_code: string;
+  username: string | null;
+  /** Shown once and never recoverable. */
+  temporary_password: string | null;
+  message: string;
+}
+
+export interface RegistrationOpen {
+  open: boolean;
+  coordinator_email_required: boolean;
+}
+
+// --- Login activity -------------------------------------------------------
+
+export interface AuditEntry {
+  id: number;
+  created_at: string;
+  /** The endpoint names this `actor`, not `actor_username`. */
+  actor: string | null;
+  actor_roles: string | null;
+  action: string;
+  entity_type: string;
+  entity_id: number | null;
+  summary: string;
+  before_state: Record<string, unknown> | null;
+  after_state: Record<string, unknown> | null;
+  ip_address: string | null;
+  user_agent: string | null;
 }

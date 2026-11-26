@@ -115,7 +115,10 @@ python -m app.cli seed-demo
 ```
 
 Every demo row is marked `DEMO DATA` and can be removed later with
-`python -m app.cli purge-demo`. **Do not run `seed-demo` on a real database.**
+`python -m app.cli purge-demo`, which also removes the 17 demo sign-in
+accounts — they all share one published password. See
+[docs/ADMIN_GUIDE.md](docs/ADMIN_GUIDE.md#removing-the-demo-data) for exactly
+what it removes and keeps. **Do not run `seed-demo` on a real database.**
 
 Confirm it worked:
 

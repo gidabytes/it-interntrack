@@ -280,7 +280,71 @@ it at next sign-in.
 `python -m app.cli seed-demo` creates 12 interns across 5 teams with six weeks
 of history, exposure logs, leave requests and evaluations.
 
-Every row is marked `DEMO DATA`. Remove with `python -m app.cli purge-demo`,
-which matches on that marker and leaves real records alone.
+Every row is marked `DEMO DATA`.
 
-**Never run it on production.**
+## Removing the demo data
+
+`seed-demo` loads 12 interns, 3 schools, 5 teams, six weeks of attendance and
+**17 sign-in accounts that all share one published password**. Clear it before
+real records go in:
+
+```bash
+cd backend
+python -m app.cli purge-demo
+```
+
+On Windows:
+
+```powershell
+cd C:\it-interntrack\backend
+.\.venv\Scripts\python.exe -m app.cli purge-demo
+```
+
+It reports what it removed:
+
+```
+Removed: {'registrations': 3, 'exposure_logs': 86, 'evaluations': 6,
+          'leave_requests': 4, 'ledger_entries': 219, 'attendance_records': 244,
+          'schedule_assignments': 60, 'interns': 12, 'supervisors': 2,
+          'mentors': 2, 'users': 17, 'teams': 5, 'schools': 3,
+          'departments': 1}
+```
+
+**What it removes:** every row tagged `DEMO DATA` — interns and all their
+attendance, hours, exposure logs, evaluations, timesheets, leave and
+schedules; the demo schools, teams, departments, supervisors and mentors; the
+pending demo registrations; and **all 17 demo accounts** (`itmanager`,
+`rsantos`, `mlim`, `jvaldez`, `pcruz`, and the twelve intern logins).
+
+**What it keeps:** your own administrator account, the 17 standard shift
+templates, and all 39 configuration settings. Those are not demo data — they
+are what the system needs to run.
+
+**What it never touches:** anything you entered yourself. Matching is on the
+marker alone, so a real intern added alongside the demo survives, as does any
+school you created.
+
+Safe to run twice; the second run reports `{}`.
+
+### Check it worked
+
+```bash
+python -m app.cli status
+```
+
+Interns should read 0, shift templates 17. If any demo account somehow
+remains, it can no longer be reached with the demo password — but confirm
+with:
+
+```bash
+python -m app.cli diagnose
+```
+
+which lists every account on the system.
+
+> **Why this matters.** The demo password is published in this repository. An
+> earlier version of `purge-demo` removed interns and attendance but left
+> every account, school and team behind, so a system that looked clean still
+> had a documented password signing in as an IT Manager. If you set this up
+> before that was fixed, run `purge-demo` again now — it is safe on an
+> already-purged database — and check the account list with `diagnose`.

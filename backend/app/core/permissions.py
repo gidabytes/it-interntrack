@@ -21,6 +21,12 @@ PERMISSIONS: dict[str, str] = {
     "intern.read.self": "View own intern profile",
     "intern.manage": "Create, edit and archive intern profiles",
     "intern.export": "Export intern profiles",
+    # Schools and the school-side OJT coordinator
+    "school.read": "View schools and their OJT coordinators",
+    "school.manage": "Add and edit schools and coordinator details",
+    # Intern self-registration
+    "registration.read": "View intern registration submissions",
+    "registration.review": "Approve or reject intern registrations",
     # Shifts and schedules
     "shift.read": "View shift templates",
     "shift.manage": "Create and edit shift templates",
@@ -82,9 +88,13 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         "dashboard.read", "dashboard.compliance", "dutyboard.read",
         "report.read", "report.export",
         "audit.read",
+        "school.read", "school.manage",
+        "registration.read", "registration.review",
     },
     RoleName.IT_SUPERVISOR: {
         "intern.read.assigned", "intern.manage",
+        "school.read", "school.manage",
+        "registration.read", "registration.review",
         "shift.read",
         "schedule.read", "schedule.assign", "schedule.approve",
         "attendance.read.assigned", "attendance.manage", "attendance.approve",
@@ -99,6 +109,7 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
     },
     RoleName.IT_MENTOR: {
         "intern.read.assigned",
+        "school.read",
         "schedule.read",
         "attendance.read.assigned",
         "ojt.read",
@@ -109,6 +120,7 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
     },
     RoleName.INTERN: {
         "intern.read.self",
+        "school.read",
         "schedule.read.self",
         "attendance.read.self", "attendance.punch",
         "attendance.request_correction",

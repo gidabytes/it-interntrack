@@ -67,7 +67,7 @@ export function Dashboard() {
         title="Management Dashboard"
         subtitle={`${data.filter.date_from} to ${data.filter.date_to} · Asia/Manila`}
         actions={
-          <div className="flex gap-1 rounded-lg border border-edge p-1">
+          <div className="flex gap-1 rounded-ios border border-separator p-1">
             {PRESETS.map((p) => (
               <button
                 key={p.key}
@@ -75,7 +75,7 @@ export function Dashboard() {
                 className={`rounded px-2.5 py-1 text-xs transition ${
                   preset === p.key
                     ? "bg-primary text-white"
-                    : "text-slate-400 hover:text-slate-200"
+                    : "text-label-2 hover:text-label"
                 }`}
               >
                 {p.label}
@@ -132,10 +132,10 @@ export function Dashboard() {
 
       <section className="mt-6 grid gap-4 xl:grid-cols-3">
         <div className="card xl:col-span-2">
-          <h2 className="mb-1 text-sm font-semibold text-slate-200">
+          <h2 className="mb-1 text-sm font-semibold text-label">
             Daily attendance
           </h2>
-          <p className="mb-4 text-xs text-slate-500">
+          <p className="mb-4 text-xs text-label-3">
             Present includes late and undertime days; those are counted again in
             the Late series.
           </p>
@@ -170,17 +170,17 @@ export function Dashboard() {
         </div>
 
         <div className="card">
-          <h2 className="mb-1 text-sm font-semibold text-slate-200">
+          <h2 className="mb-1 text-sm font-semibold text-label">
             Hours rendered vs required
           </h2>
-          <p className="mb-4 text-xs text-slate-500">
+          <p className="mb-4 text-xs text-label-3">
             Across all active interns, capped per intern at their requirement.
           </p>
           <div className="space-y-4">
             <div>
               <div className="mb-1.5 flex justify-between text-xs">
-                <span className="text-slate-400">Rendered</span>
-                <span className="tnum text-slate-200">
+                <span className="text-label-2">Rendered</span>
+                <span className="tnum text-label">
                   {vs.rendered_hours.toLocaleString()} h
                 </span>
               </div>
@@ -210,7 +210,7 @@ export function Dashboard() {
 
       <section className="mt-4 grid gap-4 xl:grid-cols-2">
         <div className="card">
-          <h2 className="mb-4 text-sm font-semibold text-slate-200">
+          <h2 className="mb-4 text-sm font-semibold text-label">
             Approved hours per day
           </h2>
           {data.analytics.hours_per_day.length ? (
@@ -244,10 +244,10 @@ export function Dashboard() {
         </div>
 
         <div className="card">
-          <h2 className="mb-1 text-sm font-semibold text-slate-200">
+          <h2 className="mb-1 text-sm font-semibold text-label">
             Compliance by team
           </h2>
-          <p className="mb-4 text-xs text-slate-500">
+          <p className="mb-4 text-xs text-label-3">
             Reported days divided by days actually expected. Rest days, holidays
             and approved leave are excluded.
           </p>
@@ -298,7 +298,7 @@ export function Dashboard() {
 
       <section className="mt-4">
         <div className="card">
-          <h2 className="mb-4 text-sm font-semibold text-slate-200">
+          <h2 className="mb-4 text-sm font-semibold text-label">
             Individual progress
           </h2>
           {data.analytics.individual_progress.length ? (
@@ -316,21 +316,21 @@ export function Dashboard() {
               }
             >
               {data.analytics.individual_progress.map((r) => (
-                <tr key={r.intern_id} className="hover:bg-white/[0.02]">
+                <tr key={r.intern_id} className="hover:bg-fill">
                   <td className="td">
                     <a
-                      className="font-medium text-slate-200 hover:text-primary"
+                      className="font-medium text-label hover:text-primary"
                       href={`/interns/${r.intern_id}`}
                     >
                       {r.intern_name}
                     </a>
-                    <span className="ml-2 text-xs text-slate-500">
+                    <span className="ml-2 text-xs text-label-3">
                       {r.intern_code}
                     </span>
                   </td>
-                  <td className="td text-slate-400">{r.team ?? "—"}</td>
+                  <td className="td text-label-2">{r.team ?? "—"}</td>
                   <td className="td tnum text-right">{r.approved_hours}</td>
-                  <td className="td tnum text-right text-slate-400">
+                  <td className="td tnum text-right text-label-2">
                     {r.required_hours}
                   </td>
                   <td className="td tnum text-right">{r.remaining_hours}</td>
@@ -346,12 +346,12 @@ export function Dashboard() {
                               : "warn"
                         }
                       />
-                      <span className="tnum w-12 shrink-0 text-right text-xs text-slate-400">
+                      <span className="tnum w-12 shrink-0 text-right text-xs text-label-2">
                         {r.completion_percentage}%
                       </span>
                     </div>
                   </td>
-                  <td className="td text-xs text-slate-400">
+                  <td className="td text-xs text-label-2">
                     {r.milestone ?? "—"}
                   </td>
                 </tr>
@@ -368,9 +368,9 @@ export function Dashboard() {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between border-t border-edge pt-2">
-      <dt className="text-slate-400">{label}</dt>
-      <dd className="tnum text-slate-200">{value}</dd>
+    <div className="flex justify-between border-t border-separator pt-2">
+      <dt className="text-label-2">{label}</dt>
+      <dd className="tnum text-label">{value}</dd>
     </div>
   );
 }

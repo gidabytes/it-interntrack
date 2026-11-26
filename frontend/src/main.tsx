@@ -12,6 +12,7 @@ import { ApiError } from "./api/client";
 import { Shell } from "./components/Shell";
 import { Spinner } from "./components/ui";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
+import { ThemeProvider } from "./hooks/useTheme";
 import { Attendance } from "./pages/Attendance";
 import { ChangePassword } from "./pages/ChangePassword";
 import { Compliance } from "./pages/Compliance";
@@ -21,11 +22,15 @@ import { Exposure } from "./pages/Exposure";
 import { InternDetail } from "./pages/InternDetail";
 import { Interns } from "./pages/Interns";
 import { Login } from "./pages/Login";
+import { LoginActivity } from "./pages/LoginActivity";
 import { MyAttendance } from "./pages/MyAttendance";
 import { MyClock } from "./pages/MyClock";
 import { MyProgress } from "./pages/MyProgress";
+import { Register } from "./pages/Register";
+import { Registrations } from "./pages/Registrations";
 import { Reports } from "./pages/Reports";
 import { Schedule } from "./pages/Schedule";
+import { Schools } from "./pages/Schools";
 import { Settings } from "./pages/Settings";
 import { Shifts } from "./pages/Shifts";
 import { Timesheets } from "./pages/Timesheets";
@@ -83,6 +88,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route
         element={
           <RequireAuth>
@@ -94,6 +100,9 @@ function App() {
         <Route path="/duty-board" element={<DutyBoard />} />
         <Route path="/compliance" element={<Compliance />} />
         <Route path="/interns" element={<Interns />} />
+        <Route path="/schools" element={<Schools />} />
+        <Route path="/registrations" element={<Registrations />} />
+        <Route path="/login-activity" element={<LoginActivity />} />
         <Route path="/interns/:id" element={<InternDetail />} />
         <Route path="/interns/:id/schedule" element={<InternSchedule />} />
         <Route path="/attendance" element={<Attendance />} />
@@ -118,12 +127,14 @@ function App() {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ThemeProvider>
   </StrictMode>,
 );

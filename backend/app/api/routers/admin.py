@@ -300,6 +300,8 @@ def update_setting(
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except PermissionError as exc:
         raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     audit_service.record(
         db, action="SETTING_CHANGED", entity_type="system_setting",
@@ -319,7 +321,15 @@ def audit_trail(
     entity_type: str | None = None,
     entity_id: int | None = None,
     actor_user_id: int | None = None,
-    action: str | None = None,
+    action: str | None = Query(
+        default=None,
+        description="One action, or several separated by commas "
+                    "(e.g. LOGIN,LOGIN_FAILED,LOGIN_LOCKED)",
+    ),
+    q: str | None = Query(
+        default=None, description="Match the acting username"
+    ),
+    ip_address: str | None = None,
     date_from: date | None = None,
     date_to: date | None = None,
     limit: int = Query(default=200, ge=1, le=2000),
@@ -332,7 +342,18 @@ def audit_trail(
     if actor_user_id:
         conds.append(AuditLog.actor_user_id == actor_user_id)
     if action:
-        conds.append(AuditLog.action == action)
+        # Accepting a list lets one request cover a whole category, such as
+        # every sign-in outcome, instead of three round trips the caller then
+        # has to merge and re-sort.
+        wanted = [a.strip().upper() for a in action.split(",") if a.strip()]
+        if len(wanted) == 1:
+            conds.append(AuditLog.action == wanted[0])
+        elif wanted:
+            conds.append(AuditLog.action.in_(wanted))
+    if q:
+        conds.append(AuditLog.actor_username.ilike(f"%{q.strip()}%"))
+    if ip_address:
+        conds.append(AuditLog.ip_address == ip_address.strip())
     if date_from:
         conds.append(AuditLog.created_at >= datetime.combine(date_from, datetime.min.time()))
     if date_to:
@@ -349,6 +370,7 @@ def audit_trail(
             "entity_id": a.entity_id, "summary": a.summary,
             "before_state": a.before_state, "after_state": a.after_state,
             "ip_address": a.ip_address,
+            "user_agent": a.user_agent,
         }
         for a in rows
     ]

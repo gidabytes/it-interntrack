@@ -24,6 +24,9 @@ from app.models.technical import (  # noqa: F401
 )
 from app.models.timesheet import Timesheet  # noqa: F401
 from app.models.system import AuditLog, Notification, SystemSetting  # noqa: F401
+from app.models.registration import (  # noqa: F401
+    InternRegistration, RegistrationStatus,
+)
 
 __all__ = [
     "ActorMixin", "RemarksMixin", "SoftDeleteMixin", "TimestampMixin",
@@ -37,4 +40,5 @@ __all__ = [
     "ExposureLog", "ExposureTarget", "InternEvaluation", "TechnicalAssignment",
     "Timesheet",
     "AuditLog", "Notification", "SystemSetting",
+    "InternRegistration", "RegistrationStatus",
 ]

@@ -216,6 +216,29 @@ DEFAULT_SETTINGS: dict[str, tuple[Any, str, str, str, bool]] = {
         "Printed on reports and timesheets.",
         True,
     ),
+    "registration_open": (
+        True, "bool", "REGISTRATION",
+        "Whether the public intern registration link accepts submissions. "
+        "Turn this off between intake periods: the link then returns a closed "
+        "notice instead of queueing applications nobody is reviewing.",
+        True,
+    ),
+    "registration_max_per_ip_per_hour": (
+        5, "int", "REGISTRATION",
+        "Submissions accepted from one IP address per hour. Interns from the "
+        "same school often apply from one campus network, so this is set well "
+        "above one; it exists to blunt automated abuse of an unauthenticated "
+        "endpoint, not to limit a genuine batch.",
+        True,
+    ),
+    "registration_requires_coordinator_email": (
+        True, "bool", "REGISTRATION",
+        "Whether the school's OJT / IT coordinator email is mandatory on the "
+        "registration form. The signed timesheet has to be returned to that "
+        "address at the end of the placement, so collecting it up front saves "
+        "chasing it later.",
+        True,
+    ),
 }
 
 
@@ -235,6 +258,20 @@ def _serialize(value: Any, value_type: str) -> str:
     if value_type == "json":
         return json.dumps(value)
     if value_type == "bool":
+        # A string has to be parsed, not tested for truthiness: every
+        # non-empty string is truthy in Python, so "false" would otherwise
+        # store `true` and silently turn a rule on. The settings endpoint
+        # accepts Any, so this is reachable from any client that sends a
+        # string - which is what a curl call or a script naturally does.
+        if isinstance(value, str):
+            text = value.strip().lower()
+            if text in ("1", "true", "yes", "on"):
+                return "true"
+            if text in ("0", "false", "no", "off", ""):
+                return "false"
+            raise ValueError(
+                f"{value!r} is not a boolean. Use true or false."
+            )
         return "true" if value else "false"
     return str(value)
 

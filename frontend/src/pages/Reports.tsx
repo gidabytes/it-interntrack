@@ -130,8 +130,8 @@ export function Reports() {
         {(data?.reports ?? []).map((r) => (
           <div key={r.key} className="card flex flex-col justify-between">
             <div>
-              <h3 className="text-sm font-medium text-slate-200">{r.title}</h3>
-              <p className="mt-1 font-mono text-[11px] text-slate-500">{r.key}</p>
+              <h3 className="text-sm font-medium text-label">{r.title}</h3>
+              <p className="mt-1 font-mono text-[11px] text-label-3">{r.key}</p>
               {r.key === "individual_timesheet" ? (
                 <p className="mt-2 text-xs text-warning">
                   Needs an intern — open one from the Interns page.
@@ -165,10 +165,10 @@ export function Reports() {
         <section className="mt-6 card">
           <div className="mb-3 flex items-baseline justify-between gap-4">
             <div>
-              <h2 className="text-sm font-semibold text-slate-200">
+              <h2 className="text-sm font-semibold text-label">
                 {preview.title}
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-label-3">
                 {preview.row_count} row{preview.row_count === 1 ? "" : "s"}
                 {preview.row_count > 50 ? " · showing the first 50" : ""}
               </p>
@@ -180,9 +180,9 @@ export function Reports() {
               Close
             </button>
           </div>
-          <div className="overflow-x-auto rounded-lg border border-edge">
+          <div className="overflow-x-auto rounded-ios border border-separator">
             <table className="min-w-full">
-              <thead className="bg-white/[0.03]">
+              <thead className="bg-fill">
                 <tr>
                   {preview.columns.map((c) => (
                     <th key={c} className="th">
@@ -195,7 +195,7 @@ export function Reports() {
                 {preview.rows.slice(0, 50).map((row, i) => (
                   <tr key={i}>
                     {row.map((cell, j) => (
-                      <td key={j} className="td text-slate-300">
+                      <td key={j} className="td text-label-2">
                         {cell === null || cell === "" ? "—" : String(cell)}
                       </td>
                     ))}

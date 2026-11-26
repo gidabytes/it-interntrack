@@ -68,7 +68,7 @@ export function Timesheets() {
       />
 
       {note ? (
-        <p className="mb-4 rounded-lg border border-primary/40 bg-primary-soft px-4 py-2.5 text-sm text-slate-200">
+        <p className="mb-4 rounded-ios border border-primary/40 bg-primary-soft px-4 py-2.5 text-sm text-label">
           {note}
         </p>
       ) : null}
@@ -105,17 +105,17 @@ export function Timesheets() {
           }
         >
           {data.map((t) => (
-            <tr key={t.id} className="hover:bg-white/[0.02]">
-              <td className="td font-mono text-xs text-slate-400">
+            <tr key={t.id} className="hover:bg-fill">
+              <td className="td font-mono text-xs text-label-2">
                 {t.reference_no}
               </td>
               <td className="td">
                 {dateOnly(t.period_start)} – {dateOnly(t.period_end)}
               </td>
-              <td className="td tnum text-right text-slate-400">{t.revision}</td>
+              <td className="td tnum text-right text-label-2">{t.revision}</td>
               <td className="td tnum text-right">
                 {t.total_days_present}
-                <span className="text-slate-500">/{t.total_days_scheduled}</span>
+                <span className="text-label-3">/{t.total_days_scheduled}</span>
                 {t.total_days_absent ? (
                   <span className="ml-1 text-xs text-danger">
                     −{t.total_days_absent}
@@ -125,7 +125,7 @@ export function Timesheets() {
               <td className="td tnum text-right font-medium">
                 {hhmm(t.total_creditable_minutes)}
               </td>
-              <td className="td tnum text-right text-slate-400">
+              <td className="td tnum text-right text-label-2">
                 {hours(t.cumulative_approved_minutes, 1)} h
               </td>
               <td className="td tnum text-right">
@@ -134,17 +134,17 @@ export function Timesheets() {
               <td className="td">
                 <Badge className={approvalTone(t.status)}>{t.status}</Badge>
                 {t.is_locked ? (
-                  <span className="ml-1.5 text-xs text-slate-500" title="Locked">
+                  <span className="ml-1.5 text-xs text-label-3" title="Locked">
                     🔒
                   </span>
                 ) : null}
               </td>
-              <td className="td text-xs text-slate-400">
+              <td className="td text-xs text-label-2">
                 {t.signed_by_name ? (
                   <>
                     {t.signed_by_name}
                     <br />
-                    <span className="font-mono text-[10px] text-slate-500">
+                    <span className="font-mono text-[10px] text-label-3">
                       {t.signature_hash?.slice(0, 12)}…
                     </span>
                   </>
@@ -189,7 +189,7 @@ export function Timesheets() {
       )}
 
       {canSign ? (
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="mt-3 text-xs text-label-3">
           Signing is refused while any punched record in the period is still
           unapproved — approve those first. That is protecting your signature,
           not obstructing it.

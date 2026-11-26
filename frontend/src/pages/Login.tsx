@@ -33,13 +33,13 @@ export function Login() {
     <div className="grid min-h-screen place-items-center px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <span className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-primary text-lg font-bold text-white">
+          <span className="mx-auto grid h-12 w-12 place-items-center rounded-ios-md bg-primary text-lg font-bold text-white">
             IT
           </span>
-          <h1 className="mt-4 text-xl font-semibold text-slate-100">
+          <h1 className="mt-4 text-xl font-semibold text-label">
             IT InternTrack
           </h1>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-label-2">
             OJT &amp; Intern Attendance Management
           </p>
         </div>
@@ -76,7 +76,7 @@ export function Login() {
           </div>
 
           {error ? (
-            <p className="rounded-lg border border-danger/40 bg-danger-soft px-3 py-2 text-sm text-danger">
+            <p className="rounded-ios border border-danger/40 bg-danger-soft px-3 py-2 text-sm text-danger">
               {error}
             </p>
           ) : null}
@@ -85,7 +85,7 @@ export function Login() {
             {busy ? "Signing in…" : "Sign in"}
           </button>
 
-          <p className="text-center text-xs text-slate-500">
+          <p className="text-center text-xs text-label-3">
             Five failed attempts locks the account for 15 minutes.
           </p>
         </form>

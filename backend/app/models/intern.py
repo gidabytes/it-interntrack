@@ -133,6 +133,39 @@ class Intern(Base, TimestampMixin, SoftDeleteMixin, ActorMixin, RemarksMixin):
     )
 
     # --- Convenience --------------------------------------------------------
+    # --- Resolved school / coordinator details ------------------------------
+    # Exposed as properties so every schema and report reads them the same
+    # way, and so the precedence rule below lives in exactly one place.
+
+    @property
+    def school_name(self) -> str | None:
+        return self.school.name if self.school is not None else None
+
+    @property
+    def school_short_name(self) -> str | None:
+        return self.school.short_name if self.school is not None else None
+
+    @property
+    def coordinator_name(self) -> str | None:
+        """Who at the school signs off these hours.
+
+        The name captured on the intern at enrolment wins over the school's
+        current coordinator. A school that changes coordinator mid-year must
+        not retroactively rewrite who signed an existing placement, which is
+        what reading straight from the school record would do.
+        """
+        if self.school_coordinator:
+            return self.school_coordinator
+        return self.school.coordinator_name if self.school is not None else None
+
+    @property
+    def coordinator_email(self) -> str | None:
+        return self.school.coordinator_email if self.school is not None else None
+
+    @property
+    def coordinator_contact(self) -> str | None:
+        return self.school.coordinator_contact if self.school is not None else None
+
     def sync_lookup_indexes(self) -> None:
         """Recompute blind indexes. Call after changing an encrypted field."""
         self.email_index = blind_index(self.email)

@@ -56,7 +56,7 @@ export function MyClock() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="card">
-          <h2 className="text-sm font-semibold text-slate-200">
+          <h2 className="text-sm font-semibold text-label">
             {data.is_timed_in ? "You are timed in" : "Not timed in"}
           </h2>
 
@@ -65,7 +65,7 @@ export function MyClock() {
               <p className="tnum mt-4 text-4xl font-semibold text-success">
                 {duration(elapsed)}
               </p>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-label-3">
                 since {clock(data.open_session.time_in)} on{" "}
                 {data.open_session.business_date}
                 {data.open_session.is_overnight_shift
@@ -73,13 +73,13 @@ export function MyClock() {
                   : ""}
               </p>
               {data.on_break_since ? (
-                <p className="mt-3 rounded-lg border border-primary/40 bg-primary-soft px-3 py-2 text-sm text-primary">
+                <p className="mt-3 rounded-ios border border-primary/40 bg-primary-soft px-3 py-2 text-sm text-primary">
                   On break since {clock(data.on_break_since)}
                 </p>
               ) : null}
             </>
           ) : (
-            <p className="mt-3 text-sm text-slate-400">
+            <p className="mt-3 text-sm text-label-2">
               {sched.is_working_day
                 ? `Scheduled ${sched.shift_code} · ${clock(sched.scheduled_start)} – ${clock(sched.scheduled_end)}`
                 : sched.is_rest_day
@@ -124,7 +124,7 @@ export function MyClock() {
           </div>
 
           {note ? (
-            <p className="mt-4 rounded-lg border border-success/40 bg-success-soft px-3 py-2 text-sm text-success">
+            <p className="mt-4 rounded-ios border border-success/40 bg-success-soft px-3 py-2 text-sm text-success">
               {note}
             </p>
           ) : null}
@@ -134,7 +134,7 @@ export function MyClock() {
             </div>
           ) : null}
 
-          <p className="mt-4 border-t border-edge pt-3 text-xs text-slate-500">
+          <p className="mt-4 border-t border-separator pt-3 text-xs text-label-3">
             The server records the time; you cannot set it yourself. If a punch
             is missing, file a correction request and your supervisor will
             review it.
@@ -142,7 +142,7 @@ export function MyClock() {
         </section>
 
         <section className="card">
-          <h2 className="mb-4 text-sm font-semibold text-slate-200">
+          <h2 className="mb-4 text-sm font-semibold text-label">
             Today&apos;s schedule
           </h2>
           <dl className="space-y-2.5 text-sm">
@@ -171,8 +171,8 @@ export function MyClock() {
           </dl>
 
           {data.open_session ? (
-            <div className="mt-4 border-t border-edge pt-4">
-              <h3 className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <div className="mt-4 border-t border-separator pt-4">
+              <h3 className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-label-2">
                 Current session
               </h3>
               <div className="flex items-center gap-2">
@@ -185,7 +185,7 @@ export function MyClock() {
                   </span>
                 ) : null}
               </div>
-              <p className="mt-2 text-xs text-slate-500">
+              <p className="mt-2 text-xs text-label-3">
                 Hours are credited when you time out, and count toward your OJT
                 total once your supervisor approves them.
               </p>
@@ -199,9 +199,9 @@ export function MyClock() {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between gap-4 border-b border-edge/60 pb-2">
-      <dt className="text-slate-400">{label}</dt>
-      <dd className="tnum text-slate-200">{value}</dd>
+    <div className="flex justify-between gap-4 border-b border-separator/60 pb-2">
+      <dt className="text-label-2">{label}</dt>
+      <dd className="tnum text-label">{value}</dd>
     </div>
   );
 }

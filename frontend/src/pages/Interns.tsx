@@ -76,7 +76,7 @@ export function Interns() {
         />
       ) : (
         <>
-          <p className="mb-2 text-xs text-slate-500">
+          <p className="mb-2 text-xs text-label-3">
             {data.total} intern{data.total === 1 ? "" : "s"}
           </p>
           <Table
@@ -94,14 +94,14 @@ export function Interns() {
             }
           >
             {data.items.map((i) => (
-              <tr key={i.id} className="hover:bg-white/[0.02]">
-                <td className="td font-mono text-xs text-slate-400">
+              <tr key={i.id} className="hover:bg-fill">
+                <td className="td font-mono text-xs text-label-2">
                   {i.intern_code}
                 </td>
                 <td className="td">
                   <Link
                     to={`/interns/${i.id}`}
-                    className="font-medium text-slate-200 hover:text-primary"
+                    className="font-medium text-label hover:text-primary"
                   >
                     {i.display_name}
                   </Link>
@@ -111,8 +111,8 @@ export function Interns() {
                     {titleCase(i.status)}
                   </Badge>
                 </td>
-                <td className="td text-slate-400">{i.course ?? "—"}</td>
-                <td className="td text-slate-400">{dateOnly(i.ojt_start_date)}</td>
+                <td className="td text-label-2">{i.course ?? "—"}</td>
+                <td className="td text-label-2">{dateOnly(i.ojt_start_date)}</td>
                 <td className="td">
                   {i.school_submission_deadline ? (
                     dateOnly(i.school_submission_deadline)
@@ -121,7 +121,7 @@ export function Interns() {
                   )}
                 </td>
                 <td className="td tnum text-right">{i.required_hours} h</td>
-                <td className="td text-xs text-slate-400">
+                <td className="td text-xs text-label-2">
                   {titleCase(i.primary_technical_function)}
                 </td>
               </tr>

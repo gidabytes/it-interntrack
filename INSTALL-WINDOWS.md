@@ -249,7 +249,8 @@ All from `C:\it-interntrack\backend`:
 # Configuration and row counts
 .\.venv\Scripts\python.exe -m app.cli status
 
-# Remove demo data
+# Remove demo data, including the 17 demo accounts that share one
+# published password. Safe to run twice.
 .\.venv\Scripts\python.exe -m app.cli purge-demo
 ```
 
@@ -382,7 +383,8 @@ DATABASE_URL=sqlite:///C:/it-interntrack/backend/interntrack.db
 - [ ] `backend\.env` backed up **separately** from the database
 - [ ] `DEBUG=false` and `REQUIRE_ENCRYPTION=true` in `.env`
 - [ ] PostgreSQL rather than SQLite if more than one person uses it at once
-- [ ] `purge-demo` run to clear the demo records
+- [ ] `purge-demo` run to clear the demo records **and the 17 demo accounts**
+- [ ] `diagnose` run to confirm which accounts remain
 - [ ] Real teams, supervisors, shift templates and holidays loaded
 - [ ] `finalize-day` scheduled in Task Scheduler
 - [ ] Backups scheduled **and a restore tested**

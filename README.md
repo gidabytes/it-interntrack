@@ -340,3 +340,31 @@ endpoints), notification delivery, and file uploads. See
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Schools, registration and sign-in activity
+
+**Schools and the OJT / IT coordinator.** Each partner school carries the
+coordinator who signs off hours and receives the completed timesheet. Those
+details appear on the intern record, and a missing coordinator email is
+flagged rather than left blank — the signed timesheet has nowhere to go
+without it. The coordinator named on an intern at enrolment takes precedence
+over the school's current one, so a school changing coordinator mid-year does
+not rewrite who signed an existing placement.
+
+**Intern self-registration** at `/register`, reachable without an account.
+A submission creates nothing operational: no intern, no account, no schedule,
+only a row awaiting review. The applicant gets a random reference code to
+check their own status. Supervisors review under **Registrations**, where a
+duplicate email address and a school that is not yet on file are both flagged
+before approval. Approving creates the intern and, optionally, a sign-in
+account with a one-time password. The submission is kept as filed, so a later
+dispute about dates or hours is answerable.
+
+Close the link between intakes with the `registration_open` setting; the rate
+limit per address is `registration_max_per_ip_per_hour`.
+
+**Login Activity** reads the audit trail and shows successful sign-ins,
+failed attempts, lockouts and password changes on one timeline, with the IP
+address and client for each. Addresses that produced only failures are called
+out. Invalid attempts are logged individually, which PCI-DSS 10.2.4 requires.
+

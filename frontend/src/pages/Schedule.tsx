@@ -57,7 +57,7 @@ export function Schedule({ internId }: { internId?: number }) {
             >
               ←
             </button>
-            <span className="min-w-[8.5rem] text-center text-sm font-medium text-slate-200">
+            <span className="min-w-[8.5rem] text-center text-sm font-medium text-label">
               {monthLabel}
             </span>
             <button
@@ -89,7 +89,7 @@ export function Schedule({ internId }: { internId?: number }) {
               {WEEKDAYS.map((d) => (
                 <div
                   key={d}
-                  className="pb-1 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-500"
+                  className="pb-1 text-center text-[10px] font-semibold uppercase tracking-wider text-label-3"
                 >
                   {d}
                 </div>
@@ -106,9 +106,9 @@ export function Schedule({ internId }: { internId?: number }) {
               ))}
             </div>
 
-            <div className="mt-4 flex flex-wrap gap-3 border-t border-edge pt-3 text-[11px] text-slate-500">
+            <div className="mt-4 flex flex-wrap gap-3 border-t border-separator pt-3 text-[11px] text-label-3">
               <Legend className="bg-primary/20 border-primary/40" label="Working day" />
-              <Legend className="bg-white/[0.03] border-edge" label="Rest day" />
+              <Legend className="bg-fill border-separator" label="Rest day" />
               <Legend className="bg-warning-soft border-warning/40" label="Holiday" />
               <Legend className="bg-primary-soft border-primary/40" label="Leave" />
               <span>⏱ overnight, ends the next day</span>
@@ -129,12 +129,12 @@ function DayCell({ day }: { day: ScheduleDay }) {
       ? "border-warning/40 bg-warning-soft"
       : day.is_working_day
         ? "border-primary/40 bg-primary/10"
-        : "border-edge bg-white/[0.02]";
+        : "border-separator bg-fill";
 
   return (
-    <div className={`min-h-[4.75rem] rounded-lg border p-1.5 ${tone}`}>
+    <div className={`min-h-[4.75rem] rounded-ios border p-1.5 ${tone}`}>
       <div className="flex items-start justify-between">
-        <span className="tnum text-xs font-medium text-slate-300">{dayNum}</span>
+        <span className="tnum text-xs font-medium text-label-2">{dayNum}</span>
         {day.is_overnight ? (
           <span className="text-[10px]" title="Overnight shift">
             ⏱
@@ -147,15 +147,15 @@ function DayCell({ day }: { day: ScheduleDay }) {
           <p className="truncate text-[10px] font-medium text-primary">
             {day.shift_code}
           </p>
-          <p className="tnum text-[10px] leading-tight text-slate-400">
+          <p className="tnum text-[10px] leading-tight text-label-2">
             {clock(day.scheduled_start)}–{clock(day.scheduled_end)}
           </p>
-          <p className="tnum text-[10px] text-slate-500">
+          <p className="tnum text-[10px] text-label-3">
             {hhmm(day.scheduled_net_minutes)}
           </p>
         </div>
       ) : (
-        <p className="mt-1 text-[10px] leading-tight text-slate-500">
+        <p className="mt-1 text-[10px] leading-tight text-label-3">
           {day.is_on_leave
             ? "Leave"
             : day.is_holiday

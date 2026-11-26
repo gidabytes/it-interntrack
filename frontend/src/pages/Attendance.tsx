@@ -132,7 +132,7 @@ export function Attendance() {
       </div>
 
       {note ? (
-        <p className="mb-4 rounded-lg border border-success/40 bg-success-soft px-4 py-2.5 text-sm text-success">
+        <p className="mb-4 rounded-ios border border-success/40 bg-success-soft px-4 py-2.5 text-sm text-success">
           {note}
         </p>
       ) : null}
@@ -177,16 +177,16 @@ export function Attendance() {
               new Date(r.time_out).toDateString() !==
                 new Date(r.time_in).toDateString();
             return (
-              <tr key={r.id} className="hover:bg-white/[0.02]">
+              <tr key={r.id} className="hover:bg-fill">
                 <td className="td">
                   {r.business_date}
                   {r.session_sequence > 1 ? (
-                    <span className="ml-1.5 text-xs text-slate-500">
+                    <span className="ml-1.5 text-xs text-label-3">
                       #{r.session_sequence}
                     </span>
                   ) : null}
                 </td>
-                <td className="td text-xs text-slate-400">
+                <td className="td text-xs text-label-2">
                   {r.shift_code ?? "—"}
                   {r.is_overnight_shift ? (
                     <span title="Overnight shift" className="ml-1">
@@ -199,14 +199,14 @@ export function Attendance() {
                   {clock(r.time_out)}
                   {crossesMidnight ? (
                     <span
-                      className="ml-1 text-[10px] text-slate-500"
+                      className="ml-1 text-[10px] text-label-3"
                       title="Timed out the following calendar day"
                     >
                       +1
                     </span>
                   ) : null}
                 </td>
-                <td className="td tnum text-right text-slate-400">
+                <td className="td tnum text-right text-label-2">
                   {hhmm(r.scheduled_net_minutes)}
                 </td>
                 <td className="td tnum text-right">{hhmm(r.actual_net_minutes)}</td>
@@ -229,7 +229,7 @@ export function Attendance() {
                   {r.overtime_minutes ? (
                     <span
                       className={
-                        r.approved_overtime_minutes ? "text-success" : "text-slate-500"
+                        r.approved_overtime_minutes ? "text-success" : "text-label-3"
                       }
                       title={
                         r.approved_overtime_minutes
@@ -254,7 +254,7 @@ export function Attendance() {
                   </Badge>
                   {r.is_locked ? (
                     <span
-                      className="ml-1.5 text-xs text-slate-500"
+                      className="ml-1.5 text-xs text-label-3"
                       title="Locked by a signed timesheet"
                     >
                       🔒
@@ -296,7 +296,7 @@ export function Attendance() {
         </Table>
       )}
 
-      <p className="mt-3 text-xs text-slate-500">
+      <p className="mt-3 text-xs text-label-3">
         ⏱ overnight shift · +1 timed out the next calendar day · * daily credit
         ceiling applied · 🔒 locked by a signed timesheet
       </p>

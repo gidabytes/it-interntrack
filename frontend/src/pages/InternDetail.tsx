@@ -72,8 +72,8 @@ export function InternDetail() {
 
       <section className="mt-4 card">
         <div className="mb-2 flex items-baseline justify-between">
-          <h2 className="text-sm font-semibold text-slate-200">OJT progress</h2>
-          <span className="tnum text-xs text-slate-400">
+          <h2 className="text-sm font-semibold text-label">OJT progress</h2>
+          <span className="tnum text-xs text-label-2">
             {progress.approved_hours} / {progress.required_hours} h
             {progress.raw_completion_percentage > 100 ? (
               <span className="ml-2 text-success">
@@ -94,7 +94,7 @@ export function InternDetail() {
               className={`rounded-md border px-2.5 py-1 text-xs ${
                 m.reached
                   ? "border-success/40 bg-success-soft text-success"
-                  : "border-edge text-slate-500"
+                  : "border-separator text-label-3"
               }`}
             >
               {m.threshold}% {m.label}
@@ -103,7 +103,7 @@ export function InternDetail() {
         </div>
 
         {progress.actual_rendered_hours !== progress.approved_hours ? (
-          <p className="mt-3 border-t border-edge pt-3 text-xs text-slate-500">
+          <p className="mt-3 border-t border-separator pt-3 text-xs text-label-3">
             Actually rendered: {progress.actual_rendered_hours} h. This differs
             from approved hours where overtime was unauthorised or a daily
             credit ceiling applied — the rendered figure is kept on record
@@ -114,7 +114,7 @@ export function InternDetail() {
 
       <section className="mt-4 grid gap-4 xl:grid-cols-2">
         <div className="card">
-          <h2 className="mb-4 text-sm font-semibold text-slate-200">
+          <h2 className="mb-4 text-sm font-semibold text-label">
             Attendance summary
           </h2>
           <dl className="grid grid-cols-2 gap-x-6 gap-y-2.5 text-sm">
@@ -145,10 +145,10 @@ export function InternDetail() {
         </div>
 
         <div className="card">
-          <h2 className="mb-1 text-sm font-semibold text-slate-200">
+          <h2 className="mb-1 text-sm font-semibold text-label">
             Completion forecast
           </h2>
-          <p className="mb-4 text-xs text-slate-500">
+          <p className="mb-4 text-xs text-label-3">
             Projected from recent approved pace and the assigned roster; the
             later of the two is reported.
           </p>
@@ -194,9 +194,9 @@ export function InternDetail() {
           </dl>
 
           {forecast.notes.length ? (
-            <ul className="mt-3 space-y-1.5 border-t border-edge pt-3">
+            <ul className="mt-3 space-y-1.5 border-t border-separator pt-3">
               {forecast.notes.map((n, i) => (
-                <li key={i} className="text-xs leading-relaxed text-slate-400">
+                <li key={i} className="text-xs leading-relaxed text-label-2">
                   {n}
                 </li>
               ))}
@@ -207,9 +207,10 @@ export function InternDetail() {
 
       {profile ? (
         <section className="mt-4 card">
-          <h2 className="mb-4 text-sm font-semibold text-slate-200">Profile</h2>
+          <h2 className="mb-4 text-sm font-semibold text-label">Profile</h2>
           <dl className="grid gap-x-8 gap-y-2.5 text-sm sm:grid-cols-2 lg:grid-cols-3">
             <Stat label="Full name" value={profile.full_name} />
+            <Stat label="School" value={profile.school_name ?? "—"} />
             <Stat label="Course" value={profile.course ?? "—"} />
             <Stat label="Year level" value={profile.year_level ?? "—"} />
             <Stat label="Email" value={profile.email ?? "—"} />
@@ -229,9 +230,35 @@ export function InternDetail() {
               value={dateOnly(profile.expected_completion_date)}
             />
           </dl>
-          <p className="mt-3 border-t border-edge pt-3 text-xs text-slate-500">
+          <div className="mt-4 border-t border-separator pt-4">
+            <h3 className="label-section">
+              School&rsquo;s OJT / IT coordinator
+            </h3>
+            <dl className="grid gap-x-8 gap-y-2.5 text-ios-footnote sm:grid-cols-2 lg:grid-cols-3">
+              <Stat label="Coordinator" value={profile.coordinator_name ?? "—"} />
+              <Stat
+                label="Coordinator email"
+                value={profile.coordinator_email ?? "Not on file"}
+              />
+              <Stat
+                label="Coordinator contact"
+                value={profile.coordinator_contact ?? "—"}
+              />
+            </dl>
+            {!profile.coordinator_email ? (
+              <p className="mt-2 rounded-ios border border-warning/30 bg-warning-soft p-2.5 text-ios-caption text-warning">
+                No coordinator email on file. The signed timesheet has to be
+                returned to the school when this placement ends — add it under
+                Schools.
+              </p>
+            ) : null}
+          </div>
+
+          <p className="mt-3 border-t border-separator pt-3 text-ios-caption text-label-3">
             Email, contact and emergency details are stored encrypted; they are
-            decrypted only for authorised readers.
+            decrypted only for authorised readers. The coordinator&rsquo;s
+            details are an institutional contact and are not encrypted, because
+            they are printed on the timesheet the school receives.
           </p>
         </section>
       ) : null}
@@ -249,9 +276,9 @@ function Stat({
   tone?: string;
 }) {
   return (
-    <div className="flex justify-between gap-4 border-b border-edge/60 pb-2">
-      <dt className="text-slate-400">{label}</dt>
-      <dd className={`tnum text-right ${tone ?? "text-slate-200"}`}>{value}</dd>
+    <div className="flex justify-between gap-4 border-b border-separator/60 pb-2">
+      <dt className="text-label-2">{label}</dt>
+      <dd className={`tnum text-right ${tone ?? "text-label"}`}>{value}</dd>
     </div>
   );
 }

@@ -2,65 +2,307 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===========================================================================
+   Theme tokens
+   ---------------------------------------------------------------------------
+   Every colour is a space-separated RGB triple so Tailwind's opacity
+   modifiers keep working (see tailwind.config.js). The two blocks below are
+   the only place a literal colour appears: components reference semantic
+   names only, which is what makes one set of class names correct in both
+   themes. The previous stylesheet hard-coded dark values such as
+   text-slate-400 and bg-white/5 throughout, so light mode inherited
+   near-invisible grey-on-white text and hover states that lightened an
+   already-white surface.
+
+   Light mode follows Apple's grouped-background model: the page is a step
+   back (#F2F2F7) and content sits on white cards. Foreground colours use
+   Apple's higher-contrast variants rather than the vivid fill colours,
+   because iOS 27's refinements to Liquid Glass were largely about legibility
+   and tinted text on a pale chip is exactly where that falls down.
+   =========================================================================== */
+
 @layer base {
-  :root {
-    color-scheme: dark;
-  }
+  :root,
   html.light {
     color-scheme: light;
+
+    --c-canvas: 242 242 247;        /* systemGroupedBackground */
+    --c-elevated: 255 255 255;      /* secondarySystemGroupedBackground */
+    --c-raised: 255 255 255;
+    --c-sidebar: 255 255 255;
+
+    --c-label: 0 0 0;
+    --c-label-2: 99 99 102;         /* readable secondary, not the 60% wash */
+    --c-label-3: 142 142 147;       /* systemGray */
+    --c-label-4: 199 199 204;       /* systemGray4 */
+
+    --c-separator: 209 209 214;
+    --c-separator-opaque: 198 198 200;
+
+    /* Hover and pressed states darken a light surface. */
+    --c-fill: 237 237 242;
+    --c-fill-2: 227 227 233;
+    --c-fill-3: 214 214 221;
+
+    --c-primary: 0 113 227;
+    --c-primary-hover: 0 89 184;
+    --c-primary-soft: 232 241 254;
+    /* Deeper variant for text sitting ON the soft wash. The vivid accent is
+       correct against white and as a button fill, but only reaches about
+       4.1:1 on its own pale background - under the 4.5 needed for the badge
+       and active-nav text that sit there. */
+    --c-primary-strong: 0 88 177;
+    --c-success: 32 124 55;
+    --c-success-soft: 229 246 234;
+    --c-warning: 154 91 0;
+    --c-warning-soft: 253 242 224;
+    --c-danger: 207 0 20;
+    --c-danger-soft: 253 232 232;
+    --c-indigo: 54 52 163;
+    --c-indigo-strong: 54 52 163;
+    --c-indigo-soft: 236 235 251;
+    --c-teal: 11 110 127;
+    --c-teal-soft: 227 244 247;
+
+    --shadow: 60 60 67;
+
+    /* Liquid Glass. --glass-opacity is driven by the clarity control in the
+       header: iOS 27 added a system-wide slider from clearest to tinted, and
+       the same trade-off applies here - more transparency looks better over
+       content, more tint reads better. */
+    --glass: 255 255 255;
+    --glass-opacity: 0.72;
+    --glass-highlight: 255 255 255;
+    --glass-highlight-opacity: 0.6;
   }
+
+  html.dark {
+    color-scheme: dark;
+
+    --c-canvas: 8 11 18;
+    --c-elevated: 21 29 43;
+    --c-raised: 27 36 53;
+    --c-sidebar: 16 21 33;
+
+    --c-label: 245 247 250;
+    --c-label-2: 154 163 178;
+    --c-label-3: 107 116 134;
+    --c-label-4: 74 82 100;
+
+    --c-separator: 37 44 58;
+    --c-separator-opaque: 46 55 71;
+
+    /* Hover and pressed states lighten a dark surface. */
+    --c-fill: 28 37 52;
+    --c-fill-2: 35 45 62;
+    --c-fill-3: 43 54 74;
+
+    --c-primary: 10 132 255;
+    --c-primary-hover: 64 156 255;
+    --c-primary-soft: 24 38 62;
+    /* Lighter here, for the same reason it is darker in light mode. */
+    --c-primary-strong: 92 181 255;
+    --c-success: 48 209 88;
+    --c-success-soft: 22 48 31;
+    --c-warning: 255 159 10;
+    --c-warning-soft: 51 37 8;
+    --c-danger: 255 69 58;
+    --c-danger-soft: 58 26 24;
+    --c-indigo: 94 92 230;
+    --c-indigo-strong: 161 159 255;
+    --c-indigo-soft: 34 34 74;
+    --c-teal: 64 200 224;
+    --c-teal-soft: 15 46 53;
+
+    --shadow: 0 0 0;
+
+    --glass: 16 21 33;
+    --glass-opacity: 0.72;
+    --glass-highlight: 255 255 255;
+    --glass-highlight-opacity: 0.08;
+  }
+
+  html,
   body {
-    @apply bg-base text-slate-200 antialiased;
+    @apply bg-canvas text-label;
   }
-  html.light body {
-    @apply bg-slate-50 text-slate-800;
+
+  body {
+    @apply font-sans text-ios-subhead antialiased;
+    /* Apple hardware renders SF with light hinting; without this the text is
+       noticeably heavier than the system UI next to it. */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  /* Tabular figures everywhere numbers are compared down a column. */
+
+  /* Headings carry negative tracking at display sizes, as SF does. */
+  h1, h2, h3 {
+    @apply text-label;
+    letter-spacing: -0.021em;
+  }
+
+  /* Tabular figures wherever numbers are compared down a column. */
   .tnum {
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Apple's focus ring: a 4px halo rather than a hard outline. */
+  :focus-visible {
+    @apply outline-none ring-[3px] ring-primary/35;
+  }
+
+  ::selection {
+    background-color: rgb(var(--c-primary) / 0.22);
+  }
+
+  /* Honour the OS setting. Several of the transitions below are large
+     translucent surfaces, which is exactly what motion sensitivity covers. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
 @layer components {
+  /* --- Materials ---------------------------------------------------------- */
+
+  /* Liquid Glass. The saturation boost is what makes colour bleed through the
+     blur the way Apple's material does; blur alone looks like frosted
+     plastic. The inset highlight gives the layered edge iOS 27 emphasised. */
+  .glass {
+    background-color: rgb(var(--glass) / var(--glass-opacity));
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    box-shadow: inset 0 1px 0 0
+      rgb(var(--glass-highlight) / var(--glass-highlight-opacity));
+  }
+
+  /* Where backdrop-filter is unavailable the surface must still be opaque, or
+     text lands on whatever is scrolling underneath it. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass {
+      background-color: rgb(var(--glass));
+    }
+  }
+
   .card {
-    @apply rounded-xl border border-edge bg-card p-5;
+    @apply rounded-ios-md border border-separator bg-elevated p-5 shadow-ios;
   }
-  html.light .card {
-    @apply border-slate-200 bg-white shadow-sm;
+
+  /* --- Grouped inset lists ----------------------------------------------- */
+  /* The signature iOS list: one rounded container, hairline separators inset
+     from the leading edge, and no rule after the final row. */
+
+  .list-group {
+    @apply overflow-hidden rounded-ios-md border border-separator bg-elevated shadow-ios;
   }
+
+  .list-row {
+    @apply flex items-center gap-3 px-4 py-3 text-ios-subhead;
+  }
+
+  .list-row + .list-row {
+    @apply border-t border-separator;
+  }
+
+  .list-row-interactive {
+    @apply list-row w-full text-left transition-colors duration-150 ease-ios
+           hover:bg-fill active:bg-fill-2;
+  }
+
+  /* --- Buttons ------------------------------------------------------------ */
+
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2
-           text-sm font-medium transition disabled:cursor-not-allowed
-           disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-ios px-4 py-2
+           text-ios-subhead font-medium transition-all duration-150 ease-ios
+           active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40;
   }
+
+  /* Filled: the one prominent action on a view. */
   .btn-primary {
-    @apply btn bg-primary text-white hover:bg-primary-hover;
+    @apply btn bg-primary text-white shadow-sm hover:bg-primary-hover;
   }
+
+  /* Tinted: iOS's secondary emphasis - the accent colour on its own soft
+     wash, which carries intent without competing with the filled button. */
+  .btn-tinted {
+    @apply btn bg-primary-soft text-primary-strong hover:bg-primary-soft/70;
+  }
+
+  /* Grey: a neutral bordered control. */
   .btn-ghost {
-    @apply btn border border-edge text-slate-300 hover:bg-white/5;
+    @apply btn border border-separator bg-elevated text-label hover:bg-fill;
   }
-  html.light .btn-ghost {
-    @apply border-slate-300 text-slate-700 hover:bg-slate-100;
+
+  .btn-plain {
+    @apply btn text-primary hover:bg-primary-soft hover:text-primary-strong;
   }
+
+  .btn-danger {
+    @apply btn bg-danger text-white hover:bg-danger/85;
+  }
+
+  .btn-sm {
+    @apply rounded-[0.5rem] px-3 py-1.5 text-ios-footnote;
+  }
+
+  /* --- Form controls ----------------------------------------------------- */
+
   .input {
-    @apply w-full rounded-lg border border-edge bg-base/60 px-3 py-2 text-sm
-           text-slate-100 outline-none placeholder:text-slate-500
-           focus:border-primary focus:ring-1 focus:ring-primary;
+    @apply w-full rounded-ios border border-separator bg-elevated px-3.5 py-2.5
+           text-ios-subhead text-label outline-none transition
+           placeholder:text-label-3
+           focus:border-primary focus:ring-[3px] focus:ring-primary/25
+           disabled:bg-fill disabled:text-label-3;
   }
-  html.light .input {
-    @apply border-slate-300 bg-white text-slate-900 placeholder:text-slate-400;
+
+  select.input {
+    /* Native arrow placement differs enough between platforms to crowd the
+       text; the extra padding keeps it clear of long option labels. */
+    @apply pr-9;
   }
+
   .label {
-    @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400;
+    @apply mb-1.5 block text-ios-footnote font-medium text-label-2;
   }
+
+  /* Uppercase micro-label, as above a grouped settings section. */
+  .label-section {
+    @apply mb-2 block text-ios-caption2 font-semibold uppercase tracking-[0.06em]
+           text-label-3;
+  }
+
+  .hint {
+    @apply mt-1.5 text-ios-footnote text-label-3;
+  }
+
+  /* --- Tables ------------------------------------------------------------ */
+
   .th {
-    @apply whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold
-           uppercase tracking-wide text-slate-400;
+    @apply whitespace-nowrap px-3.5 py-2.5 text-left text-ios-caption2
+           font-semibold uppercase tracking-[0.05em] text-label-2;
   }
+
   .td {
-    @apply whitespace-nowrap border-t border-edge px-3 py-2.5 text-sm;
+    @apply whitespace-nowrap border-t border-separator px-3.5 py-3
+           text-ios-subhead text-label;
   }
-  html.light .td {
-    @apply border-slate-200;
+
+  /* --- Segmented control ------------------------------------------------- */
+
+  .segmented {
+    @apply inline-flex items-center gap-0.5 rounded-ios bg-fill p-0.5;
+  }
+
+  .segmented-item {
+    @apply rounded-[0.5rem] px-3 py-1.5 text-ios-footnote font-medium
+           text-label-2 transition-all duration-150 ease-ios
+           hover:text-label;
+  }
+
+  .segmented-item-active {
+    @apply bg-elevated text-label shadow-sm;
   }
 }

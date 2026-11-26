@@ -1,16 +1,55 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>IT InternTrack</title>
     <meta name="description" content="OJT & Intern Attendance Management System" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <meta name="color-scheme" content="light dark" />
+
+    <!--
+      Inline SVG, so there is no extra file to serve and no 404 for
+      /favicon.ico on every page load. Matches the "IT" mark in the header.
+    -->
+    <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%230071E3"/><text x="32" y="44" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="30" font-weight="700" text-anchor="middle" fill="%23ffffff">IT</text></svg>' />
+
+    <!--
+      No webfont. The stylesheet asks for the platform UI font first - SF on
+      Apple hardware, Segoe UI Variable on Windows - so a downloaded font
+      would only ever be a fallback. Dropping it also removes two requests to
+      a third party, which on a restricted network is a stall rather than a
+      saving, and keeps the application self-contained.
+    -->
+
+    <!--
+      Resolve the theme before first paint. The React provider sets this class
+      too, but it runs after the first frame, so without this the page shows a
+      flash of the wrong theme on every load. Kept deliberately small and
+      synchronous: it has to finish before the browser paints.
+    -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("interntrack.theme");
+          var dark =
+            stored === "dark" ||
+            ((stored === "system" || !stored) &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.classList.add(dark ? "dark" : "light");
+          var clarity = parseFloat(localStorage.getItem("interntrack.clarity"));
+          if (clarity >= 0.4 && clarity <= 1) {
+            document.documentElement.style.setProperty(
+              "--glass-opacity",
+              String(clarity)
+            );
+          }
+        } catch (e) {
+          // Storage can be unavailable in private mode; the provider will
+          // apply a theme a frame later.
+          document.documentElement.classList.add("light");
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

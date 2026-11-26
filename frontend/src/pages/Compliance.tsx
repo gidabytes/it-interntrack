@@ -38,7 +38,7 @@ export function Compliance() {
         title="Management Compliance"
         subtitle={`${data.filter.date_from} to ${data.filter.date_to} · all IT teams`}
         actions={
-          <div className="flex gap-1 rounded-lg border border-edge p-1">
+          <div className="flex gap-1 rounded-ios border border-separator p-1">
             {PRESETS.map((p) => (
               <button
                 key={p}
@@ -46,7 +46,7 @@ export function Compliance() {
                 className={`rounded px-2.5 py-1 text-xs ${
                   preset === p
                     ? "bg-primary text-white"
-                    : "text-slate-400 hover:text-slate-200"
+                    : "text-label-2 hover:text-label"
                 }`}
               >
                 {p.replace("THIS_", "").toLowerCase()}
@@ -61,7 +61,7 @@ export function Compliance() {
           {data.alerts.map((a, i) => (
             <div
               key={i}
-              className={`flex items-start gap-3 rounded-lg border px-4 py-2.5 text-sm ${
+              className={`flex items-start gap-3 rounded-ios border px-4 py-2.5 text-sm ${
                 a.severity === "CRITICAL"
                   ? "border-danger/40 bg-danger-soft text-danger"
                   : "border-warning/40 bg-warning-soft text-warning"
@@ -70,7 +70,7 @@ export function Compliance() {
               <span className="mt-0.5 text-xs font-bold">
                 {a.severity === "CRITICAL" ? "!" : "•"}
               </span>
-              <p className="text-slate-200">{a.message}</p>
+              <p className="text-label">{a.message}</p>
             </div>
           ))}
         </section>
@@ -122,10 +122,10 @@ export function Compliance() {
 
       {data.at_risk_interns.length ? (
         <section className="mt-6 card">
-          <h2 className="mb-1 text-sm font-semibold text-slate-200">
+          <h2 className="mb-1 text-sm font-semibold text-label">
             Interns at risk
           </h2>
-          <p className="mb-4 text-xs text-slate-500">
+          <p className="mb-4 text-xs text-label-3">
             &ldquo;Will miss deadline&rdquo; with hours short means the roster
             itself cannot deliver it — add shifts. &ldquo;At risk&rdquo; with
             nothing short means the schedule covers it but attendance does not.
@@ -146,15 +146,15 @@ export function Compliance() {
             }
           >
             {data.at_risk_interns.map((f) => (
-              <tr key={f.intern_id} className="hover:bg-white/[0.02]">
+              <tr key={f.intern_id} className="hover:bg-fill">
                 <td className="td">
                   <a
-                    className="font-medium text-slate-200 hover:text-primary"
+                    className="font-medium text-label hover:text-primary"
                     href={`/interns/${f.intern_id}`}
                   >
                     {f.intern_name}
                   </a>
-                  <span className="ml-2 text-xs text-slate-500">
+                  <span className="ml-2 text-xs text-label-3">
                     {f.intern_code}
                   </span>
                 </td>
@@ -165,7 +165,7 @@ export function Compliance() {
                 </td>
                 <td className="td tnum text-right">{pct(f.completion_percentage)}</td>
                 <td className="td tnum text-right">{f.remaining_hours} h</td>
-                <td className="td tnum text-right text-slate-400">
+                <td className="td tnum text-right text-label-2">
                   {f.avg_hours_per_week} h/wk
                 </td>
                 <td className="td">{dateOnly(f.projected_completion_date)}</td>
@@ -193,7 +193,7 @@ export function Compliance() {
 
       <section className="mt-4 grid gap-4 xl:grid-cols-2">
         <div className="card">
-          <h2 className="mb-4 text-sm font-semibold text-slate-200">
+          <h2 className="mb-4 text-sm font-semibold text-label">
             Compliance by team
           </h2>
           {data.by_team.length ? (
@@ -201,13 +201,13 @@ export function Compliance() {
               {data.by_team.map((t) => (
                 <div key={t.team_id}>
                   <div className="mb-1 flex items-baseline justify-between text-xs">
-                    <span className="text-slate-300">
+                    <span className="text-label-2">
                       {t.team_name}
-                      <span className="ml-2 text-slate-500">
+                      <span className="ml-2 text-label-3">
                         {t.intern_count} intern{t.intern_count === 1 ? "" : "s"}
                       </span>
                     </span>
-                    <span className="tnum text-slate-400">
+                    <span className="tnum text-label-2">
                       {pct(t.compliance_percentage)}
                       {t.absent_days ? ` · ${t.absent_days} absent` : ""}
                     </span>
@@ -225,10 +225,10 @@ export function Compliance() {
         </div>
 
         <div className="card">
-          <h2 className="mb-1 text-sm font-semibold text-slate-200">
+          <h2 className="mb-1 text-sm font-semibold text-label">
             Approval backlog
           </h2>
-          <p className="mb-4 text-xs text-slate-500">
+          <p className="mb-4 text-xs text-label-3">
             Unapproved attendance does not count toward OJT hours, so a backlog
             quietly holds back completion.
           </p>
@@ -248,14 +248,14 @@ export function Compliance() {
               {data.approval_backlog.supervisors.map((s2) => (
                 <tr key={s2.supervisor_id}>
                   <td className="td">{s2.supervisor_name}</td>
-                  <td className="td tnum text-right text-slate-400">
+                  <td className="td tnum text-right text-label-2">
                     {s2.intern_count}
                   </td>
                   <td className="td tnum text-right">{s2.total_pending}</td>
                   <td className="td tnum text-right">
                     {s2.overdue_items || "—"}
                   </td>
-                  <td className="td tnum text-right text-slate-400">
+                  <td className="td tnum text-right text-label-2">
                     {s2.oldest_pending_days !== null
                       ? `${s2.oldest_pending_days}d`
                       : "—"}
@@ -274,7 +274,7 @@ export function Compliance() {
 
       {data.excessive_absences.length ? (
         <section className="mt-4 card">
-          <h2 className="mb-4 text-sm font-semibold text-slate-200">
+          <h2 className="mb-4 text-sm font-semibold text-label">
             Excessive absences
           </h2>
           <Table
@@ -293,17 +293,17 @@ export function Compliance() {
               <tr key={a.intern_id}>
                 <td className="td">
                   {a.intern_name}
-                  <span className="ml-2 text-xs text-slate-500">
+                  <span className="ml-2 text-xs text-label-3">
                     {a.intern_code}
                   </span>
                 </td>
-                <td className="td text-slate-400">{a.team ?? "—"}</td>
-                <td className="td text-slate-400">{a.supervisor ?? "—"}</td>
+                <td className="td text-label-2">{a.team ?? "—"}</td>
+                <td className="td text-label-2">{a.supervisor ?? "—"}</td>
                 <td className="td tnum text-right text-danger">{a.absences}</td>
-                <td className="td tnum text-right text-slate-400">
+                <td className="td tnum text-right text-label-2">
                   {a.threshold}
                 </td>
-                <td className="td tnum text-right text-slate-400">
+                <td className="td tnum text-right text-label-2">
                   {a.window_days}d
                 </td>
               </tr>

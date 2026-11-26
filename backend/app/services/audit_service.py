@@ -63,6 +63,16 @@ def _snapshot(obj: Any, fields: list[str] | None = None) -> dict | None:
     return out
 
 
+def snapshot(obj: Any, fields: list[str] | None = None) -> dict | None:
+    """Capture an object's state before it is mutated.
+
+    A caller that edits a row in place has already lost the old values by the
+    time it calls record(), so it takes this first and passes the result as
+    `before`.
+    """
+    return _snapshot(obj, fields)
+
+
 def record(
     db: Session,
     *,

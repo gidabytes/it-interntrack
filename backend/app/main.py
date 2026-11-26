@@ -143,12 +143,12 @@ def health() -> dict:
 
 # --- Routers ---------------------------------------------------------------
 from app.api.routers import (  # noqa: E402
-    admin, attendance, auth, dashboard, exposure, interns, leave, ojt, reports,
-    schedules, shifts, timesheets,
+    admin, attendance, auth, dashboard, exposure, interns, leave, ojt,
+    registrations, reports, schedules, schools, shifts, timesheets,
 )
 
 for module in (
-    auth, interns, shifts, schedules, attendance, ojt, leave, timesheets,
-    exposure, dashboard, reports, admin,
+    auth, interns, schools, registrations, shifts, schedules, attendance, ojt,
+    leave, timesheets, exposure, dashboard, reports, admin,
 ):
     app.include_router(module.router)

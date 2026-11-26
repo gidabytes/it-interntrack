@@ -6,8 +6,8 @@ const TONE_CLASS: Record<Tone, string> = {
   ok: "bg-success-soft text-success border-success/30",
   warn: "bg-warning-soft text-warning border-warning/30",
   bad: "bg-danger-soft text-danger border-danger/30",
-  info: "bg-primary-soft text-primary border-primary/30",
-  muted: "bg-white/5 text-slate-400 border-edge",
+  info: "bg-primary-soft text-primary-strong border-primary/30",
+  muted: "bg-fill text-label-2 border-separator",
 };
 
 const ATTENDANCE_TONE: Record<string, Tone> = {

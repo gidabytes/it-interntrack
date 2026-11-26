@@ -4,7 +4,7 @@ from __future__ import annotations
 from datetime import date
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.core.crypto import blind_index
 from app.core.enums import InternStatus
@@ -96,6 +96,10 @@ def search(
     rows = list(
         db.scalars(
             select(Intern)
+            # The school is read for every row (name and coordinator are on
+            # the intern response), so it is fetched in one extra query
+            # instead of one per intern.
+            .options(selectinload(Intern.school))
             .where(*conds)
             .order_by(Intern.last_name, Intern.first_name)
             .offset(max(0, (page - 1) * page_size))

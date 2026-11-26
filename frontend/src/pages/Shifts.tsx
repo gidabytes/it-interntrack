@@ -25,7 +25,7 @@ export function Shifts() {
         subtitle="Editing a template never changes past attendance: each record keeps a snapshot of the configuration that applied when it was created."
       />
 
-      <div className="mb-4 flex flex-wrap gap-3 text-xs text-slate-500">
+      <div className="mb-4 flex flex-wrap gap-3 text-xs text-label-3">
         <span>{data.length} templates</span>
         <span>· {day.length} day shifts</span>
         <span>· {night.length} overnight</span>
@@ -48,11 +48,11 @@ export function Shifts() {
         }
       >
         {data.map((s) => (
-          <tr key={s.id} className="hover:bg-white/[0.02]">
+          <tr key={s.id} className="hover:bg-fill">
             <td className="td font-mono text-xs">
               {s.code}
               {s.is_system_default ? (
-                <span className="ml-1.5 text-[10px] text-slate-500" title="Standard template">
+                <span className="ml-1.5 text-[10px] text-label-3" title="Standard template">
                   std
                 </span>
               ) : null}
@@ -64,28 +64,28 @@ export function Shifts() {
               {s.is_overnight ? (
                 <Badge className={toneClass("info")}>crosses midnight</Badge>
               ) : (
-                <span className="text-xs text-slate-500">no</span>
+                <span className="text-xs text-label-3">no</span>
               )}
             </td>
-            <td className="td tnum text-right text-slate-400">
+            <td className="td tnum text-right text-label-2">
               {hhmm(s.elapsed_minutes)}
             </td>
             <td className="td tnum text-right">
               {hhmm(s.break_minutes)}
-              <span className="ml-1 text-[10px] text-slate-500">
+              <span className="ml-1 text-[10px] text-label-3">
                 {s.break_is_paid ? "paid" : "unpaid"}
               </span>
             </td>
             <td className="td tnum text-right font-medium">
               {hhmm(s.net_working_minutes)}
             </td>
-            <td className="td tnum text-right text-slate-400">
+            <td className="td tnum text-right text-label-2">
               {s.grace_period_minutes}m
             </td>
-            <td className="td tnum text-right text-slate-400">
+            <td className="td tnum text-right text-label-2">
               {s.max_overtime_minutes}m
             </td>
-            <td className="td tnum text-right text-slate-400">
+            <td className="td tnum text-right text-label-2">
               {s.min_rest_hours}h
             </td>
             <td className="td">
@@ -97,7 +97,7 @@ export function Shifts() {
         ))}
       </Table>
 
-      <p className="mt-3 text-xs text-slate-500">
+      <p className="mt-3 text-xs text-label-3">
         Every standard template is nine hours elapsed with a one-hour unpaid
         break, so a full shift credits eight hours — not nine. SHIFT-09 ends at
         exactly 00:00, which is midnight of the following day and is treated as

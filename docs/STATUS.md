@@ -84,6 +84,17 @@ Last updated: 2026-11-21
 
 ---
 
+## Added after the first release
+
+- Schools and the school-side OJT / IT coordinator, surfaced on the intern
+  record and the Schools screen.
+- Intern self-registration at `/register`, with a reviewer queue, duplicate
+  detection and optional account provisioning.
+- Login Activity, reading the audit trail; failed sign-ins are now logged
+  individually rather than only at lockout.
+- Light theme rebuilt on semantic tokens, following Apple's grouped-background
+  model, with Liquid Glass chrome and a clarity control.
+
 ## Not built
 
 ### Other gaps

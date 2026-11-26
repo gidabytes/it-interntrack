@@ -59,10 +59,10 @@ export function MyProgress() {
 
       <section className="mt-4 card">
         <div className="mb-2 flex items-baseline justify-between">
-          <h2 className="text-sm font-semibold text-slate-200">
+          <h2 className="text-sm font-semibold text-label">
             Toward {progress.required_hours} hours
           </h2>
-          <span className="tnum text-xs text-slate-400">
+          <span className="tnum text-xs text-label-2">
             {progress.approved_hours} h approved
           </span>
         </div>
@@ -77,7 +77,7 @@ export function MyProgress() {
               className={`rounded-md border px-2.5 py-1 text-xs ${
                 m.reached
                   ? "border-success/40 bg-success-soft text-success"
-                  : "border-edge text-slate-500"
+                  : "border-separator text-label-3"
               }`}
             >
               {m.threshold}% {m.label}
@@ -85,7 +85,7 @@ export function MyProgress() {
           ))}
         </div>
         {progress.next_milestone ? (
-          <p className="mt-3 text-xs text-slate-500">
+          <p className="mt-3 text-xs text-label-3">
             Next milestone: {progress.next_milestone.label} at{" "}
             {progress.next_milestone.threshold}%.
           </p>
@@ -94,7 +94,7 @@ export function MyProgress() {
 
       <section className="mt-4 grid gap-4 lg:grid-cols-2">
         <div className="card">
-          <h2 className="mb-4 text-sm font-semibold text-slate-200">
+          <h2 className="mb-4 text-sm font-semibold text-label">
             Your attendance
           </h2>
           <dl className="grid grid-cols-2 gap-x-6 gap-y-2.5 text-sm">
@@ -109,7 +109,7 @@ export function MyProgress() {
             />
           </dl>
           {attendance.incomplete_records > 0 ? (
-            <p className="mt-3 rounded-lg border border-warning/40 bg-warning-soft px-3 py-2 text-xs text-warning">
+            <p className="mt-3 rounded-ios border border-warning/40 bg-warning-soft px-3 py-2 text-xs text-warning">
               You have {attendance.incomplete_records} session
               {attendance.incomplete_records === 1 ? "" : "s"} with no time out.
               Those credit zero hours until corrected — file a correction
@@ -119,10 +119,10 @@ export function MyProgress() {
         </div>
 
         <div className="card">
-          <h2 className="mb-1 text-sm font-semibold text-slate-200">
+          <h2 className="mb-1 text-sm font-semibold text-label">
             Will you finish in time?
           </h2>
-          <p className="mb-4 text-xs text-slate-500">
+          <p className="mb-4 text-xs text-label-3">
             Based on your recent pace and your assigned shifts.
           </p>
           <dl className="space-y-2.5 text-sm">
@@ -140,9 +140,9 @@ export function MyProgress() {
             ) : null}
           </dl>
           {forecast.notes.length ? (
-            <ul className="mt-3 space-y-1.5 border-t border-edge pt-3">
+            <ul className="mt-3 space-y-1.5 border-t border-separator pt-3">
               {forecast.notes.map((n, i) => (
-                <li key={i} className="text-xs leading-relaxed text-slate-400">
+                <li key={i} className="text-xs leading-relaxed text-label-2">
                   {n}
                 </li>
               ))}
@@ -156,9 +156,9 @@ export function MyProgress() {
 
 function Row({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="flex justify-between gap-4 border-b border-edge/60 pb-2">
-      <dt className="text-slate-400">{label}</dt>
-      <dd className="tnum text-slate-200">{value}</dd>
+    <div className="flex justify-between gap-4 border-b border-separator/60 pb-2">
+      <dt className="text-label-2">{label}</dt>
+      <dd className="tnum text-label">{value}</dd>
     </div>
   );
 }

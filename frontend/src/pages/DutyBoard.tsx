@@ -47,7 +47,7 @@ export function DutyBoard() {
         <KpiCard label="Completed shift" value={data.counts.COMPLETED_SHIFT ?? 0} />
       </section>
 
-      <p className="mt-4 text-xs text-slate-500">
+      <p className="mt-4 text-xs text-label-3">
         An overnight shift belongs to the date it started, so at 02:00 the
         interns on duty show yesterday&apos;s business date. That is correct, not a
         display error.
@@ -61,13 +61,13 @@ export function DutyBoard() {
             <section key={state} className="card">
               <div className="mb-3 flex items-baseline justify-between gap-3">
                 <div>
-                  <h2 className="text-sm font-semibold text-slate-200">
+                  <h2 className="text-sm font-semibold text-label">
                     {label}
-                    <span className="ml-2 text-xs font-normal text-slate-500">
+                    <span className="ml-2 text-xs font-normal text-label-3">
                       {rows.length}
                     </span>
                   </h2>
-                  <p className="text-xs text-slate-500">{hint}</p>
+                  <p className="text-xs text-label-3">{hint}</p>
                 </div>
                 <Badge className={dutyTone(state)}>{state.replace(/_/g, " ")}</Badge>
               </div>
@@ -94,19 +94,19 @@ export function DutyBoard() {
 
 function DutyCard({ entry: r }: { entry: DutyEntry }) {
   return (
-    <div className="rounded-lg border border-edge bg-base/40 p-3">
+    <div className="rounded-ios border border-separator bg-canvas/40 p-3">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium text-slate-200">
+          <p className="truncate text-sm font-medium text-label">
             {r.intern_name}
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-label-3">
             {r.intern_code}
             {r.team ? ` · ${r.team}` : ""}
           </p>
         </div>
         {r.shift_code ? (
-          <span className="shrink-0 rounded border border-edge px-1.5 py-0.5 text-[10px] text-slate-400">
+          <span className="shrink-0 rounded border border-separator px-1.5 py-0.5 text-[10px] text-label-2">
             {r.shift_code}
             {r.is_overnight ? " ⏱" : ""}
           </span>
@@ -147,9 +147,9 @@ function DutyCard({ entry: r }: { entry: DutyEntry }) {
       </dl>
 
       {r.notes.length ? (
-        <ul className="mt-2 space-y-0.5 border-t border-edge pt-2">
+        <ul className="mt-2 space-y-0.5 border-t border-separator pt-2">
           {r.notes.map((n, i) => (
-            <li key={i} className="text-[11px] leading-snug text-slate-500">
+            <li key={i} className="text-[11px] leading-snug text-label-3">
               {n}
             </li>
           ))}
@@ -162,7 +162,7 @@ function DutyCard({ entry: r }: { entry: DutyEntry }) {
 function Line({
   label,
   value,
-  tone = "text-slate-300",
+  tone = "text-label-2",
 }: {
   label: string;
   value: string;
@@ -170,7 +170,7 @@ function Line({
 }) {
   return (
     <div className="flex justify-between gap-2">
-      <dt className="text-slate-500">{label}</dt>
+      <dt className="text-label-3">{label}</dt>
       <dd className={`tnum ${tone}`}>{value}</dd>
     </div>
   );

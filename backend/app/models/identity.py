@@ -10,7 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.crypto import EncryptedString, blind_index
 from app.core.database import Base, UTCDateTime
-from app.models.base import ActorMixin, SoftDeleteMixin, TimestampMixin
+from app.models.base import ActorMixin, RemarksMixin, SoftDeleteMixin, TimestampMixin
 
 user_roles = Table(
     "user_roles",
@@ -59,7 +59,7 @@ class Role(Base, TimestampMixin):
         return f"<Role {self.name}>"
 
 
-class User(Base, TimestampMixin, SoftDeleteMixin, ActorMixin):
+class User(Base, TimestampMixin, SoftDeleteMixin, ActorMixin, RemarksMixin):
     __tablename__ = "users"
     __table_args__ = (
         Index("ix_users_username_active", "username", "is_active"),

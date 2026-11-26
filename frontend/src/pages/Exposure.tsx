@@ -12,7 +12,7 @@ import {
 
 /** Heat shading by hours logged, so gaps read at a glance. */
 function cellTone(hoursLogged: number, coverage: number): string {
-  if (hoursLogged === 0) return "bg-danger-soft text-slate-500";
+  if (hoursLogged === 0) return "bg-danger-soft text-label-3";
   if (coverage >= 100) return "bg-success-soft text-success";
   if (coverage >= 50) return "bg-primary-soft text-primary";
   return "bg-warning-soft text-warning";
@@ -63,10 +63,10 @@ export function Exposure() {
 
       {data.department_gaps.length ? (
         <section className="mt-4 card">
-          <h2 className="mb-1 text-sm font-semibold text-slate-200">
+          <h2 className="mb-1 text-sm font-semibold text-label">
             Where the department is not covering
           </h2>
-          <p className="mb-3 text-xs text-slate-500">
+          <p className="mb-3 text-xs text-label-3">
             Areas most interns have never touched. This is a staffing pattern to
             address with rotations, not an individual shortcoming.
           </p>
@@ -74,10 +74,10 @@ export function Exposure() {
             {data.department_gaps.map((g) => (
               <span
                 key={g.area}
-                className="rounded-lg border border-warning/40 bg-warning-soft px-3 py-1.5 text-xs text-warning"
+                className="rounded-ios border border-warning/40 bg-warning-soft px-3 py-1.5 text-xs text-warning"
               >
                 {g.label}
-                <span className="ml-2 text-slate-400">
+                <span className="ml-2 text-label-2">
                   {g.exposure_rate}% exposed · {g.interns_untouched} untouched
                 </span>
               </span>
@@ -87,10 +87,10 @@ export function Exposure() {
       ) : null}
 
       <section className="mt-4 card">
-        <h2 className="mb-1 text-sm font-semibold text-slate-200">
+        <h2 className="mb-1 text-sm font-semibold text-label">
           Coverage matrix
         </h2>
-        <p className="mb-4 text-xs text-slate-500">
+        <p className="mb-4 text-xs text-label-3">
           Hours logged per area. Sorted with the least-covered interns first —
           those are the ones to rotate next.
         </p>
@@ -114,19 +114,19 @@ export function Exposure() {
             }
           >
             {data.interns.map((row) => (
-              <tr key={row.intern_id} className="hover:bg-white/[0.02]">
+              <tr key={row.intern_id} className="hover:bg-fill">
                 <td className="td">
                   <a
-                    className="font-medium text-slate-200 hover:text-primary"
+                    className="font-medium text-label hover:text-primary"
                     href={`/interns/${row.intern_id}`}
                   >
                     {row.intern_name}
                   </a>
-                  <span className="ml-2 text-xs text-slate-500">
+                  <span className="ml-2 text-xs text-label-3">
                     {row.intern_code}
                   </span>
                 </td>
-                <td className="td text-xs text-slate-400">{row.team ?? "—"}</td>
+                <td className="td text-xs text-label-2">{row.team ?? "—"}</td>
                 {data.area_keys.map((k) => {
                   const cell = row.areas[k];
                   return (
@@ -170,7 +170,7 @@ export function Exposure() {
           <Empty title="No interns to show" />
         )}
 
-        <div className="mt-4 flex flex-wrap gap-3 border-t border-edge pt-3 text-[11px] text-slate-500">
+        <div className="mt-4 flex flex-wrap gap-3 border-t border-separator pt-3 text-[11px] text-label-3">
           <span className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded bg-success-soft" /> target met
           </span>
