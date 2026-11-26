@@ -171,6 +171,35 @@ async def encryption_handler(request: Request, exc: EncryptionNotConfigured):
     )
 
 
+@app.get("/", include_in_schema=False)
+@app.get("/login", include_in_schema=False)
+@app.get("/register", include_in_schema=False)
+def _wrong_port(request: Request) -> JSONResponse:
+    """Explain the mistake instead of answering a bare "Not Found".
+
+    This process serves the API only; the web interface is a separate server
+    on another port. Opening this one in a browser and getting {"detail":
+    "Not Found"} gives no hint of that, and the paths above are exactly the
+    ones somebody tries when they do - the root, and the two pages they were
+    aiming for.
+    """
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={
+            "detail": (
+                "This is the IT InternTrack API, not the web interface. The "
+                "web interface runs separately, by default at "
+                "http://localhost:5174 - open that instead. If it is not "
+                "running, start it with `npm run dev` in the frontend folder "
+                "(or scripts\\windows\\start-web.ps1 on Windows)."
+            ),
+            "web_interface": "http://localhost:5174",
+            "api_docs": f"{request.base_url}api/docs".replace("//api", "/api"),
+            "health": f"{request.base_url}api/health".replace("//api", "/api"),
+        },
+    )
+
+
 @app.get("/api/health", tags=["System"], summary="Health check")
 def health() -> dict:
     """Liveness probe for nginx / monitoring. No authentication required."""

@@ -351,6 +351,11 @@ New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' `
 
 `C:\it-interntrack` is short enough that this rarely comes up.
 
+**`Not Found` where the login screen should be** — you are on the API port.
+The API is on 8000, the application on **5174**. Go to
+http://localhost:5174. Opening http://localhost:8000 now returns a message
+saying as much.
+
 **Blank page at localhost:5174** — check the `npm run dev` terminal for errors
 and that the API terminal is still running. Press F12 in the browser; failed
 `/api` calls in the console mean the backend is down.

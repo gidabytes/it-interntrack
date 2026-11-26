@@ -38,6 +38,13 @@ if ($inUse) {
 
 Write-Host "API      http://localhost:$Port" -ForegroundColor Cyan
 Write-Host "API docs http://localhost:$Port/api/docs" -ForegroundColor Cyan
+Write-Host ""
+# Stated here because opening the API port in a browser is the easiest
+# mistake to make, and its 404 does not explain itself.
+Write-Host "This window serves the API only." -ForegroundColor Yellow
+Write-Host "Open the application at http://localhost:5174 - not this port." -ForegroundColor Yellow
+Write-Host "Start it in a second window: .\scripts\windows\start-web.ps1" -ForegroundColor Yellow
+Write-Host ""
 Write-Host "Ctrl+C to stop.`n" -ForegroundColor Gray
 
 # Run from backend\ so the relative SQLite path in .env resolves.

@@ -26,6 +26,12 @@ end to end and verified.
 > The server now logs `DATABASE SCHEMA IS OUT OF DATE` at startup when this
 > is outstanding, and `python -m app.cli diagnose` reports it with the fix.
 
+
+> **Two servers, two ports.** The API is on **8000**; the application you
+> actually use is on **5174**. Opening port 8000 in a browser shows an API
+> response, not the sign-in page. If you see `Not Found` where you expected a
+> login screen, you are on the wrong port — go to **http://localhost:5174**.
+
 ## 1. What you need
 
 | | Version | Check with |

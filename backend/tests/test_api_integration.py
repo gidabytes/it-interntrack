@@ -543,3 +543,27 @@ def test_validation_errors_are_readable(api):
     body = r.json()
     assert "problems" in body
     assert any("cannot be before" in p["message"] for p in body["problems"])
+
+
+def test_api_root_explains_it_is_not_the_web_interface(api):
+    """Opening the API port in a browser is the easiest mistake to make.
+
+    A bare {"detail": "Not Found"} gives no hint that the application is on a
+    different port, and the frontend surfaces that string verbatim, so the
+    user sees "Not Found" with nothing to act on.
+    """
+    for path in ("/", "/login", "/register"):
+        r = api.get(path)
+        assert r.status_code == 404, path
+        detail = r.json()["detail"]
+        assert "not the web interface" in detail.lower(), path
+        assert "5174" in detail, path
+        assert r.json()["web_interface"].endswith("5174")
+
+
+def test_the_api_itself_is_unaffected_by_that_route(api):
+    assert api.get("/api/health").status_code == 200
+    # A genuine unknown API path still gets an ordinary 404, not the hint.
+    r = api.get("/api/does-not-exist")
+    assert r.status_code == 404
+    assert "web interface" not in r.json()["detail"].lower()
