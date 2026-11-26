@@ -284,6 +284,49 @@ def cmd_reset_password(args) -> int:
     return 0
 
 
+def _schema_revision_check() -> tuple[str | None, str | None]:
+    """Return (current_revision, head_revision) for this database.
+
+    Compared rather than inferred from an error message: "no such column"
+    reaches the caller for several unrelated reasons, whereas a revision
+    behind head says precisely that a migration is outstanding.
+    """
+    try:
+        from alembic.config import Config
+        from alembic.script import ScriptDirectory
+        from alembic.runtime.migration import MigrationContext
+        from pathlib import Path
+
+        root = Path(__file__).resolve().parent.parent
+        cfg = Config(str(root / "alembic.ini"))
+        cfg.set_main_option("script_location", str(root / "alembic"))
+        head = ScriptDirectory.from_config(cfg).get_current_head()
+        with engine.connect() as conn:
+            current = MigrationContext.configure(conn).get_current_revision()
+        return current, head
+    except Exception:
+        # Never let the check itself break the diagnostic it is part of.
+        return None, None
+
+
+def _report_pending_migration(current: str | None, head: str | None) -> None:
+    print("THE DATABASE SCHEMA IS OLDER THAN THE CODE.")
+    print(f"  database is at : {current or '(no revision recorded)'}")
+    print(f"  code expects   : {head}")
+    print()
+    print("  Sign-in fails with a server error rather than a bad-password")
+    print("  message, because the query itself cannot run. Apply the pending")
+    print("  migration:")
+    print()
+    print("    cd backend")
+    print("    python -m alembic upgrade head")
+    print()
+    print("  On Windows:")
+    print("    .\\.venv\\Scripts\\python.exe -m alembic upgrade head")
+    print()
+    print("  Nothing is lost; this adds the columns the new code reads.")
+
+
 def cmd_diagnose(args) -> int:
     """Explain why a sign-in is failing.
 
@@ -305,6 +348,14 @@ def cmd_diagnose(args) -> int:
         "Encryption  : "
         + ("ON" if encryption_enabled() else "OFF  <-- the API will refuse to start")
     )
+    current, head = _schema_revision_check()
+    if head is not None and current != head:
+        print(f"Schema      : {current or 'unknown'}  (code expects {head})")
+        print()
+        _report_pending_migration(current, head)
+        return 1
+    if head is not None:
+        print(f"Schema      : up to date ({head})")
     print()
 
     try:
@@ -326,8 +377,13 @@ def cmd_diagnose(args) -> int:
                 print("  the database file and re-run: alembic upgrade head, bootstrap.")
                 return 1
             except Exception as exc:
-                missing_tables = "no such table" in str(exc).lower() or (
-                    "does not exist" in str(exc).lower()
+                text = str(exc).lower()
+                if "no such column" in text or "undefined column" in text:
+                    # Reached only if the revision check could not run.
+                    _report_pending_migration(current, head)
+                    return 1
+                missing_tables = "no such table" in text or (
+                    "does not exist" in text
                 )
                 if missing_tables:
                     print("THE DATABASE HAS NO TABLES.")

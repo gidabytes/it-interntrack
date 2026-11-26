@@ -22,6 +22,35 @@ logging.basicConfig(
 log = logging.getLogger("interntrack")
 
 
+def _pending_migration() -> tuple[str | None, str] | None:
+    """(current, head) when the database is behind the code, else None.
+
+    Compares the recorded Alembic revision rather than probing for columns:
+    the revision is exact, and the check costs one query at startup.
+    """
+    try:
+        from pathlib import Path
+
+        from alembic.config import Config
+        from alembic.runtime.migration import MigrationContext
+        from alembic.script import ScriptDirectory
+
+        root = Path(__file__).resolve().parent.parent
+        cfg = Config(str(root / "alembic.ini"))
+        cfg.set_main_option("script_location", str(root / "alembic"))
+        head = ScriptDirectory.from_config(cfg).get_current_head()
+        if head is None:
+            return None
+        with engine.connect() as conn:
+            current = MigrationContext.configure(conn).get_current_revision()
+        return None if current == head else (current, head)
+    except Exception:
+        # A brand-new database has no alembic_version table yet, and the
+        # existing bootstrap warning already covers that case. This check must
+        # never be the reason the application will not start.
+        return None
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup checks.
@@ -43,6 +72,20 @@ async def lifespan(app: FastAPI):
         log.warning(
             "SECRET_KEY is still the shipped placeholder. Generate one with "
             "`openssl rand -hex 32` before deploying."
+        )
+
+    # A schema older than the code breaks every query that touches a new
+    # column, which surfaces to the user as a 500 on sign-in rather than
+    # anything that names the cause. Saying so at startup turns a confusing
+    # runtime failure into one line in the log at the moment it can be fixed.
+    pending = _pending_migration()
+    if pending:
+        current, head = pending
+        log.error(
+            "DATABASE SCHEMA IS OUT OF DATE: at %s, code expects %s. "
+            "Sign-in and other requests will fail with a server error until "
+            "you run `alembic upgrade head` from the backend folder.",
+            current or "(no revision recorded)", head,
         )
 
     # Seed the settings catalogue and the standard shift matrix on first run.

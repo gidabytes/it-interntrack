@@ -13,6 +13,19 @@ end to end and verified.
 > that matter (no `openssl`, the PowerShell execution policy, `py` rather than
 > `python3`), and there are setup scripts under `scripts\windows\`.
 
+
+> **Pulling new code? Run the migrations.** A database older than the code
+> fails on the first query that touches a new column, which shows up as a
+> server error on sign-in rather than anything naming the cause:
+>
+> ```bash
+> cd backend
+> python -m alembic upgrade head
+> ```
+>
+> The server now logs `DATABASE SCHEMA IS OUT OF DATE` at startup when this
+> is outstanding, and `python -m app.cli diagnose` reports it with the fix.
+
 ## 1. What you need
 
 | | Version | Check with |

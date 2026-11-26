@@ -319,6 +319,18 @@ cmd /c dir /a C:\it-interntrack\backend\.env*
 
 Then `.\.venv\Scripts\python.exe -m app.cli init-env`.
 
+**Sign-in fails with a server error (500), not "invalid credentials"** — the
+database schema is probably older than the code, which happens after pulling
+new code without applying the migrations:
+
+```powershell
+cd C:\it-interntrack\backend
+.\.venv\Scripts\python.exe -m alembic upgrade head
+```
+
+Nothing is lost; this adds the columns the new code reads. The API also logs
+`DATABASE SCHEMA IS OUT OF DATE` at startup when this is outstanding.
+
 **Sign-in fails** — run the diagnostic:
 
 ```powershell
