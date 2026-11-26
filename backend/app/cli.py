@@ -11,10 +11,12 @@
     python -m app.cli status
     python -m app.cli diagnose                  # why can I not sign in?
     python -m app.cli reset-password admin      # regain access to an account
+    python -m app.cli init-env                  # write .env with fresh secrets
 """
 from __future__ import annotations
 
 import argparse
+import secrets
 import sys
 from datetime import date
 
@@ -48,6 +50,65 @@ def cmd_generate_blind_index_key(_args) -> int:
         "lookup index, so run rotate-encryption afterwards to rebuild them.",
         file=sys.stderr,
     )
+    return 0
+
+
+def cmd_init_env(args) -> int:
+    """Create .env from .env.example with freshly generated secrets.
+
+    Hand-editing .env is the step people most often get wrong: a missing key
+    stops the application from starting, and on Windows Notepad will happily
+    save the file as ".env.txt", which is then ignored entirely. Generating it
+    here removes both problems, on every platform.
+    """
+    from pathlib import Path
+
+    base = Path(__file__).resolve().parent.parent
+    example = base / ".env.example"
+    target = Path(args.path) if args.path else base / ".env"
+
+    if not example.exists():
+        print(f"Cannot find {example}. Run this from the backend folder.")
+        return 1
+
+    if target.exists() and not args.force:
+        print(f"{target} already exists. Nothing changed.")
+        print("  Use --force to overwrite it.")
+        print()
+        print("  WARNING: overwriting replaces FERNET_KEYS. Any data already")
+        print("           encrypted with the current keys becomes unreadable.")
+        return 1
+
+    secret = secrets.token_hex(32)
+    fernet = generate_key()
+    blind = generate_blind_index_key()
+
+    text = example.read_text(encoding="utf-8")
+    replacements = {
+        "SECRET_KEY=CHANGE-ME-run-openssl-rand-hex-32": f"SECRET_KEY={secret}",
+        "FERNET_KEYS=\n": f"FERNET_KEYS={fernet}\n",
+        "BLIND_INDEX_KEY=\n": f"BLIND_INDEX_KEY={blind}\n",
+    }
+    for old_line, new_line in replacements.items():
+        if old_line not in text:
+            print(f"Unexpected .env.example: could not find {old_line!r}")
+            return 1
+        text = text.replace(old_line, new_line, 1)
+
+    # Written with LF endings and no BOM: pydantic-settings reads the file
+    # directly, and a BOM breaks the first key name.
+    target.write_bytes(text.encode("utf-8"))
+
+    print(f"Wrote {target}")
+    print("  SECRET_KEY      generated")
+    print("  FERNET_KEYS     generated")
+    print("  BLIND_INDEX_KEY generated")
+    print("  DATABASE_URL    sqlite:///./interntrack.db  (change for PostgreSQL)")
+    print()
+    print("  BACK UP FERNET_KEYS AND BLIND_INDEX_KEY somewhere separate from")
+    print("  the database. Without them, intern email addresses, contact")
+    print("  numbers and emergency contacts cannot be read back - a database")
+    print("  backup alone will not restore them.")
     return 0
 
 
@@ -389,6 +450,15 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("generate-key", help="Generate a Fernet encryption key")
     sub.add_parser("generate-blind-index-key", help="Generate a blind-index key")
+    p = sub.add_parser(
+        "init-env", help="Write .env with freshly generated secrets"
+    )
+    p.add_argument("--path", default=None, help="Write somewhere other than ./.env")
+    p.add_argument(
+        "--force", action="store_true",
+        help="Overwrite an existing .env (replaces the encryption keys)",
+    )
+
     sub.add_parser("init-db", help="Create tables directly (development)")
 
     p = sub.add_parser("bootstrap", help="Seed settings, shifts and an admin user")
@@ -431,6 +501,7 @@ def main(argv: list[str] | None = None) -> int:
     handlers = {
         "generate-key": cmd_generate_key,
         "generate-blind-index-key": cmd_generate_blind_index_key,
+        "init-env": cmd_init_env,
         "init-db": cmd_init_db,
         "bootstrap": cmd_bootstrap,
         "seed-demo": cmd_seed_demo,

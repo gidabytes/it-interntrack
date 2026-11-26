@@ -115,8 +115,11 @@ monitoring, attendance exceptions, technical exposure.
 ## Quick start
 
 New to the project? **[RUNNING.md](RUNNING.md)** is a step-by-step guide from a
-clean machine to a working application, including troubleshooting. The short
-version follows.
+clean machine to a working application, including troubleshooting. On Windows,
+use **[INSTALL-WINDOWS.md](INSTALL-WINDOWS.md)** instead — it covers the
+PowerShell execution policy, the Microsoft Store Python stub, and Task
+Scheduler, and ships setup scripts under `scripts\windows\`. The short version
+follows.
 
 ```bash
 git clone https://github.com/gidabytes/it-interntrack.git

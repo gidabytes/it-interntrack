@@ -8,6 +8,11 @@ end to end and verified.
 
 ---
 
+> **On Windows?** Use **[INSTALL-WINDOWS.md](INSTALL-WINDOWS.md)** instead.
+> The commands below are written for Linux and macOS; Windows differs in ways
+> that matter (no `openssl`, the PowerShell execution policy, `py` rather than
+> `python3`), and there are setup scripts under `scripts\windows\`.
+
 ## 1. What you need
 
 | | Version | Check with |
@@ -66,23 +71,20 @@ virtual environment is active.** If you open a new terminal, run
 ## 4. Create the configuration
 
 ```bash
-cp .env.example .env
+python -m app.cli init-env
 ```
 
-Generate three secrets:
+That writes `.env` from `.env.example` with all three secrets generated, so
+there is nothing to paste. It refuses to overwrite an existing `.env`, because
+replacing `FERNET_KEYS` would make already-encrypted data unreadable.
+
+To do it by hand instead:
 
 ```bash
+cp .env.example .env
 openssl rand -hex 32                          # -> SECRET_KEY
 python -m app.cli generate-key                # -> FERNET_KEYS
 python -m app.cli generate-blind-index-key    # -> BLIND_INDEX_KEY
-```
-
-Open `.env` and paste each value against the matching name:
-
-```ini
-SECRET_KEY=<first command's output>
-FERNET_KEYS=<second command's output>
-BLIND_INDEX_KEY=<third command's output>
 ```
 
 > **The application will not start without `FERNET_KEYS`.** That is deliberate:

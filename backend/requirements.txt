@@ -10,9 +10,9 @@ python-jose[cryptography]>=3.3
 python-multipart>=0.0.9
 openpyxl>=3.1
 reportlab>=4.1
-# PostgreSQL driver (production)
-psycopg[binary]>=3.1 ; platform_system != "Windows"
-psycopg[binary]>=3.1 ; platform_system == "Windows"
+# PostgreSQL driver. Ships as a wheel on Linux, macOS and Windows, so it
+# installs cleanly even when you start on SQLite.
+psycopg[binary]>=3.1
 # dev / test
 pytest>=8.0
 httpx>=0.27
